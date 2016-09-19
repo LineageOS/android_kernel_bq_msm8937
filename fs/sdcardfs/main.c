@@ -335,7 +335,7 @@ static int sdcardfs_read_super(struct vfsmount *mnt, struct super_block *sb,
 					sb_info->options.fs_low_uid,
 					sb_info->options.fs_low_gid, 00755);*/
 	} else {
-		setup_derived_state(sb->s_root->d_inode, PERM_ROOT, sb_info->options.fs_low_uid, AID_ROOT, false, sb->s_root->d_inode);
+		setup_derived_state(sb->s_root->d_inode, PERM_ROOT, sb_info->options.fs_user_id, AID_ROOT, false, sb->s_root->d_inode);
 		snprintf(sb_info->obbpath_s, PATH_MAX, "%s/Android/obb", dev_name);
 	}
 	fixup_tmp_permissions(sb->s_root->d_inode);
