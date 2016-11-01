@@ -3352,6 +3352,17 @@ WLANTL_SetMcastDuplicateDetection
 );
 #endif /* WLAN_FEATURE_RMC */
 
+/*
+ * WLANTL_ResetRxSSN - reset last rx ssn
+ * @pvosGCtx: global vos context
+ * @ucSTAId: station id
+ *
+ * This function resets the last ssn of all tids of the station
+ * for whom BA reorder session exists.
+ *
+ * Return: none
+ */
+void WLANTL_ResetRxSSN(v_PVOID_t pvosGCtx, uint8_t ucSTAId);
 
 /*
  * WLANTL_SetDataPktFilter - Set data filter flag
