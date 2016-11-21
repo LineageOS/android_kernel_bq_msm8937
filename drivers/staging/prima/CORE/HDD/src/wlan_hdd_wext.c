@@ -9068,6 +9068,8 @@ int wlan_hdd_set_filter(hdd_context_t *pHddCtx, tpPacketFilterCfg pRequest,
                 return -EINVAL;
             }
 
+            WLANTL_SetDataPktFilter((WLAN_HDD_GET_CTX(pAdapter))->pvosContext,
+                                    pHddStaCtx->conn_info.staId[0], true);
             break;
 
         case HDD_RCV_FILTER_CLEAR:
@@ -9081,6 +9083,9 @@ int wlan_hdd_set_filter(hdd_context_t *pHddCtx, tpPacketFilterCfg pRequest,
                         __func__);
                 return -EINVAL;
             }
+
+            WLANTL_SetDataPktFilter((WLAN_HDD_GET_CTX(pAdapter))->pvosContext,
+                                    pHddStaCtx->conn_info.staId[0], false);
             break;
 
         default :
