@@ -156,7 +156,7 @@
 / {
 	qrd_batterydata: qcom,battery-data {
 		qcom,batt-id-range-pct = <15>;
-		#include "batterydata-qrd-sku2-4v35-2590mah.dtsi"
+		#include "tenshi_battery_3000mah.dtsi"
 	};
 };
 
