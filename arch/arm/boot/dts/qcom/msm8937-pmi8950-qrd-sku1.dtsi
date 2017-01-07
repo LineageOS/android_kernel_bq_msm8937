@@ -45,6 +45,18 @@
 		qcom,switch-source = <&pmi8950_switch>;
 	};
 
+	hall2_ic {
+		compatible = "hall-switch";
+		interrupt-parent = <&tlmm>;
+		interrupts = <45 3>;
+		interrupt-names = "hall-int";
+		vddio-supply = <&pm8937_l10>;
+		linux,gpio-int = <&tlmm 45 3>;
+		linux,wakeup;
+		linux,min-uv = <2800000>;
+		linux,max-uv = <2850000>;
+	};
+
 	i2c@78b7000 {
 		status = "ok";
 		synaptics@4b {
