@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2010-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -597,6 +597,29 @@ static void pil_release_mmap(struct pil_desc *desc)
 	}
 }
 
+static void pil_clear_segment(struct pil_desc *desc)
+{
+	struct pil_priv *priv = desc->priv;
+	u8 __iomem *buf;
+
+	struct pil_map_fw_info map_fw_info = {
+		.attrs = desc->attrs,
+		.region = priv->region,
+		.base_addr = priv->region_start,
+		.dev = desc->dev,
+	};
+
+	void *map_data = desc->map_data ? desc->map_data : &map_fw_info;
+
+	/* Clear memory so that unauthorized ELF code is not left behind */
+	buf = desc->map_fw_mem(priv->region_start, (priv->region_end -
+					priv->region_start), map_data);
+	pil_memset_io(buf, 0, (priv->region_end - priv->region_start));
+	desc->unmap_fw_mem(buf, (priv->region_end - priv->region_start),
+								map_data);
+
+}
+
 #define IOMAP_SIZE SZ_1M
 
 struct pil_map_fw_info {
@@ -890,6 +913,7 @@ out:
 					&desc->attrs);
 			priv->region = NULL;
 		}
+		pil_clear_segment(desc);
 		pil_release_mmap(desc);
 	}
 	return ret;
