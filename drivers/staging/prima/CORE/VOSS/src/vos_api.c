@@ -83,7 +83,7 @@
 #include "bapInternal.h"
 #include "bap_hdd_main.h"
 #endif //WLAN_BTAMP_FEATURE
-
+#include "wlan_qct_wdi_cts.h"
 
 /*---------------------------------------------------------------------------
  * Preprocessor Definitions and Constants
@@ -100,12 +100,25 @@
 /* Approximate amount of time to wait for WDA to issue a DUMP req */
 #define VOS_WDA_RESP_TIMEOUT WDA_STOP_TIMEOUT
 
+/* Trace index for WDI Read/Write */
+#define VOS_TRACE_INDEX_MAX 256
+
 /*---------------------------------------------------------------------------
  * Data definitions
  * ------------------------------------------------------------------------*/
 static VosContextType  gVosContext;
 static pVosContextType gpVosContext;
 static v_U8_t vos_multicast_logging;
+
+struct vos_wdi_trace
+{
+   vos_wdi_trace_event_type event;
+   uint16        message;
+   uint64        time;
+};
+
+static struct vos_wdi_trace gvos_wdi_msg_trace[VOS_TRACE_INDEX_MAX];
+uint16 gvos_wdi_msg_trace_index = 0;
 
 /*---------------------------------------------------------------------------
  * Forward declaration
@@ -268,7 +281,6 @@ VOS_STATUS vos_open( v_CONTEXT_t *pVosContext, void *devHandle )
 
    /* Initialize the timer module */
    vos_timer_module_init();
-
 
    /* Initialize the probe event */
    if (vos_event_init(&gpVosContext->ProbeEvent) != VOS_STATUS_SUCCESS)
@@ -899,6 +911,12 @@ VOS_STATUS vos_start( v_CONTEXT_t vosContext )
      if ( vStatus == VOS_STATUS_E_TIMEOUT )
      {
          WDA_setNeedShutdown(vosContext);
+         vos_smd_dump_stats();
+         vos_dump_wdi_events();
+         VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
+               "%s: Test MC thread by posting a probe message to SYS",
+                __func__);
+         wlan_sys_probe();
      }
      VOS_ASSERT(0);
      return VOS_STATUS_E_FAILURE;
@@ -1208,6 +1226,8 @@ VOS_STATUS vos_close( v_CONTEXT_t vosContext )
       VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
                 "%s: Could not deinit roamDelayStats", __func__);
   }
+
+  vos_wdthread_flush_timer_work();
 
   return VOS_STATUS_SUCCESS;
 }
@@ -1745,7 +1765,8 @@ void vos_send_fatal_event_done(void)
      */
     if ((WLAN_LOG_INDICATOR_HOST_DRIVER == indicator) &&
         (WLAN_LOG_REASON_SME_COMMAND_STUCK == reason_code ||
-         WLAN_LOG_REASON_SME_OUT_OF_CMD_BUF == reason_code))
+         WLAN_LOG_REASON_SME_OUT_OF_CMD_BUF == reason_code ||
+         WLAN_LOG_REASON_SCAN_NOT_ALLOWED == reason_code))
     {
          VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
            "Do SSR for reason_code=%d", reason_code);
@@ -3570,4 +3591,76 @@ bool vos_is_wlan_logging_enabled(void)
     }
 
     return true;
+}
+
+/**---------------------------------------------------------------------------
+
+  \brief vos_is_probe_rsp_offload_enabled -
+
+  API to check if probe response offload feature is enabled from ini
+
+  \param  -  None
+
+  \return -  0: probe response offload is disabled
+             1: probe response offload is enabled
+
+  --------------------------------------------------------------------------*/
+v_BOOL_t vos_is_probe_rsp_offload_enabled(void)
+{
+	hdd_context_t *pHddCtx = NULL;
+	v_CONTEXT_t pVosContext = NULL;
+
+	/* Get the Global VOSS Context */
+	pVosContext = vos_get_global_context(VOS_MODULE_ID_SYS, NULL);
+	if (!pVosContext) {
+		hddLog(VOS_TRACE_LEVEL_FATAL,
+		       "%s: Global VOS context is Null", __func__);
+		return FALSE;
+	}
+
+	/* Get the HDD context */
+	pHddCtx = (hdd_context_t *)vos_get_context(VOS_MODULE_ID_HDD,
+						   pVosContext);
+	if (!pHddCtx) {
+		hddLog(VOS_TRACE_LEVEL_FATAL,
+		       "%s: HDD context is Null", __func__);
+		return FALSE;
+	}
+
+	return pHddCtx->cfg_ini->sap_probe_resp_offload;
+}
+
+void vos_smd_dump_stats(void)
+{
+  WCTS_Dump_Smd_status();
+}
+
+void vos_log_wdi_event(uint16 msg, vos_wdi_trace_event_type event)
+{
+
+   if (gvos_wdi_msg_trace_index >= VOS_TRACE_INDEX_MAX)
+   {
+          gvos_wdi_msg_trace_index = 0;
+   }
+
+   gvos_wdi_msg_trace[gvos_wdi_msg_trace_index].event = event;
+   gvos_wdi_msg_trace[gvos_wdi_msg_trace_index].time =
+                                 vos_get_monotonic_boottime();
+   gvos_wdi_msg_trace[gvos_wdi_msg_trace_index].message =  msg;
+   gvos_wdi_msg_trace_index++;
+
+   return;
+}
+
+void vos_dump_wdi_events(void)
+{
+   int i;
+
+   for(i = 0; i < VOS_TRACE_INDEX_MAX; i++) {
+            VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
+            "%s:event:%d time:%lld msg:%d ",__func__,
+            gvos_wdi_msg_trace[i].event,
+            gvos_wdi_msg_trace[i].time,
+            gvos_wdi_msg_trace[i].message);
+  }
 }

@@ -1388,6 +1388,12 @@ hddTdlsPeer_t *wlan_hdd_tdls_get_peer(hdd_adapter_t *pAdapter,
     return peer;
 }
 
+/*
+ * NOTE:
+ * The Callers of this function should ensure to release the
+ * tdls_lock before calling this function to avoid deadlocks.
+ */
+
 int wlan_hdd_tdls_set_cap(hdd_adapter_t *pAdapter,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,18,0))
                                    const u8* mac,
@@ -2918,13 +2924,6 @@ void wlan_hdd_tdls_implicit_send_discovery_request(tdlsCtx_t * pHddTdlsCtx)
                  FL("curr_peer is NULL"));
 
         return;
-    }
-
-    if (TRUE == sme_IsPmcBmps(WLAN_HDD_GET_HAL_CTX(pHddTdlsCtx->pAdapter)))
-    {
-        VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
-                   "%s: Disable BMPS", __func__);
-        hdd_disable_bmps_imps(pHddCtx, WLAN_HDD_INFRA_STATION);
     }
 
     /* This function is called in mutex_lock */

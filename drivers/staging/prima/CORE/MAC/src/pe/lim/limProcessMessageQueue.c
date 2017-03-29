@@ -741,9 +741,12 @@ limHandle80211Frames(tpAniSirGlobal pMac, tpSirMsgQ limMsg, tANI_U8 *pDeferMsg)
         if ((fc.type == SIR_MAC_MGMT_FRAME) &&
                 (fc.subType != SIR_MAC_MGMT_BEACON))
         {
-            limLog(pMac, LOG1, FL("RX MGMT - Type %hu, SubType %hu, Seq.no %d"),
-                    fc.type, fc.subType,
-                    ((pHdr->seqControl.seqNumHi << 4) | (pHdr->seqControl.seqNumLo)));
+            limLog(pMac, LOG1, FL("RX MGMT - Type %hu, SubType %hu,"
+                                  "Seq.no %d, Source mac-addr "
+                                  MAC_ADDRESS_STR), fc.type, fc.subType,
+                                  ((pHdr->seqControl.seqNumHi << 4) |
+                                   (pHdr->seqControl.seqNumLo)),
+                                  MAC_ADDR_ARRAY(pHdr->sa));
         }
 #ifdef WLAN_FEATURE_ROAM_SCAN_OFFLOAD
     if (WDA_GET_ROAMCANDIDATEIND(pRxPacketInfo))
@@ -764,12 +767,15 @@ limHandle80211Frames(tpAniSirGlobal pMac, tpSirMsgQ limMsg, tANI_U8 *pDeferMsg)
                           WDA_GET_RX_PAYLOAD_LEN(pRxPacketInfo));
 
             /* Max candidates allowed */
-            if (candidateChanInfo->candidateCount > SIR_PER_ROAM_MAX_AP_CNT)
+            if (candidateChanInfo->candidateCount >
+                SIR_PER_ROAM_MAX_CANDIDATE_CNT)
             {
                 limLog(pMac, LOGE,
-                       FL("Got maximum candidates as %d setting default"),
-                       candidateChanInfo->candidateCount);
-                candidateChanInfo->candidateCount = SIR_PER_ROAM_MAX_AP_CNT;
+                       FL("Got maximum candidates as %d, setting count as %d"),
+                       candidateChanInfo->candidateCount,
+                       SIR_PER_ROAM_MAX_CANDIDATE_CNT);
+                candidateChanInfo->candidateCount =
+                        SIR_PER_ROAM_MAX_CANDIDATE_CNT;
             }
 
             vos_mem_set(&pMac->candidateChannelInfo,
@@ -2249,7 +2255,7 @@ limProcessMessages(tpAniSirGlobal pMac, tpSirMsgQ  limMsg)
         {
             tpPESession     psessionEntry;
             tANI_U8         sessionId;
-            tDphHashNode   *pStaDs;
+            tDphHashNode   *pStaDs = NULL;
             int i, aid;
             tTdlsLinkEstablishParams *pTdlsLinkEstablishParams;
             pTdlsLinkEstablishParams = (tTdlsLinkEstablishParams*) limMsg->bodyptr;
@@ -2286,10 +2292,16 @@ limProcessMessages(tpAniSirGlobal pMac, tpSirMsgQ  limMsg)
                     }
                 }
 send_link_resp:
-                limSendSmeTdlsLinkEstablishReqRsp(pMac,
+                if (pStaDs)
+                   limSendSmeTdlsLinkEstablishReqRsp(pMac,
                                                   psessionEntry->smeSessionId,
                                                   pStaDs->staAddr,
                                                   pStaDs,
+                                                  pTdlsLinkEstablishParams->status) ;
+                else
+                   limSendSmeTdlsLinkEstablishReqRsp(pMac,
+                                                  psessionEntry->smeSessionId,
+                                                  NULL, NULL,
                                                   pTdlsLinkEstablishParams->status) ;
             }
             vos_mem_free((v_VOID_t *)(limMsg->bodyptr));
@@ -2301,7 +2313,7 @@ send_link_resp:
         {
             tpPESession     psessionEntry;
             tANI_U8         sessionId;
-            tDphHashNode   *pStaDs;
+            tDphHashNode   *pStaDs = NULL;
             int i, aid;
             tTdlsChanSwitchParams *pTdlsChanSwitchParams;
             pTdlsChanSwitchParams = (tTdlsChanSwitchParams*) limMsg->bodyptr;
@@ -2338,11 +2350,17 @@ send_link_resp:
                     }
                 }
 send_chan_switch_resp:
-                limSendSmeTdlsChanSwitchReqRsp(pMac,
+                if (pStaDs)
+                    limSendSmeTdlsChanSwitchReqRsp(pMac,
                                                   psessionEntry->smeSessionId,
                                                   pStaDs->staAddr,
                                                   pStaDs,
-                                                  pTdlsChanSwitchParams->status) ;
+                                                  pTdlsChanSwitchParams->status);
+               else
+                    limSendSmeTdlsChanSwitchReqRsp(pMac,
+                                                  psessionEntry->smeSessionId,
+                                                  NULL, NULL,
+                                                  pTdlsChanSwitchParams->status);
             }
             vos_mem_free((v_VOID_t *)(limMsg->bodyptr));
             limMsg->bodyptr = NULL;
