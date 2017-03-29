@@ -1739,11 +1739,11 @@ s32 DrvPlatformLyrTouchDeviceRemove(struct i2c_client *pClient)
 #if defined(CONFIG_TOUCH_DRIVER_RUN_ON_SPRD_PLATFORM) || defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM)
     gpio_free(MS_TS_MSG_IC_GPIO_INT);
     gpio_free(MS_TS_MSG_IC_GPIO_RST);
-    
+    if (_gIrq > 0) {
+        free_irq(_gIrq, NULL);
+    }
     if (g_InputDevice)
     {
-        free_irq(_gIrq, g_InputDevice);
-
         input_unregister_device(g_InputDevice);
         g_InputDevice = NULL;
     }
@@ -1821,7 +1821,9 @@ s32 DrvPlatformLyrTouchDeviceRemove(struct i2c_client *pClient)
 #endif //CONFIG_ENABLE_JNI_INTERFACE
 
 #ifdef CONFIG_ENABLE_ESD_PROTECTION
+    if (g_EsdCheckWorkqueue != NULL) {
     destroy_workqueue(g_EsdCheckWorkqueue);
+    }
 #endif //CONFIG_ENABLE_ESD_PROTECTION
 
 #ifdef CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM

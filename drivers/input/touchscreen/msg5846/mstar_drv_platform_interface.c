@@ -73,6 +73,7 @@ extern struct workqueue_struct *g_EsdCheckWorkqueue;
 
 extern u8 IS_FIRMWARE_DATA_LOG_ENABLED;
 
+int g_IsAmbientResumed = 0;
 
 /*=============================================================*/
 // GLOBAL VARIABLE DEFINITION
@@ -104,9 +105,20 @@ int MsDrvInterfaceTouchDeviceFbNotifierCallback(struct notifier_block *pSelf, un
     {
         pBlank = pEventData->data;
 
-        if (*pBlank == FB_BLANK_UNBLANK)
+        if (*pBlank == FB_BLANK_UNBLANK || *pBlank == FB_BLANK_NORMAL)
         {
             DBG(&g_I2cClient->dev, "*** %s() TP Resume ***\n", __func__);
+
+            if (*pBlank == FB_BLANK_NORMAL)
+            {
+		g_IsAmbientResumed = 1;
+            }
+
+            if (*pBlank == FB_BLANK_UNBLANK && g_IsAmbientResumed == 1)
+            {
+		g_IsAmbientResumed = 0;
+		return 0;
+            }
 
             if (g_IsUpdateFirmware != 0) // Check whether update frimware is finished
             {
@@ -221,6 +233,11 @@ int MsDrvInterfaceTouchDeviceFbNotifierCallback(struct notifier_block *pSelf, un
             {
                 DBG(&g_I2cClient->dev, "Not allow to power on/off touch ic while update firmware.\n");
                 return 0;
+            }
+
+            if (g_IsAmbientResumed != 0)
+            {
+		g_IsAmbientResumed = 0;
             }
 
 #ifdef CONFIG_ENABLE_PROXIMITY_DETECTION
