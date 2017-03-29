@@ -10,6 +10,7 @@
  * GNU General Public License for more details.
  */
 #define pr_fmt(fmt) "SMBCHG: %s: " fmt, __func__
+#define DEBUG
 
 #include <linux/spmi.h>
 #include <linux/spinlock.h>
@@ -249,6 +250,7 @@ struct smbchg_chip {
 	struct smbchg_regulator		ext_otg_vreg;
 	struct work_struct		usb_set_online_work;
 	struct delayed_work		vfloat_adjust_work;
+	struct delayed_work		usb_state_work;
 	struct delayed_work		hvdcp_det_work;
 	spinlock_t			sec_access_lock;
 	struct mutex			therm_lvl_lock;
@@ -397,6 +399,8 @@ enum battchg_enable_voters {
 	NUM_BATTCHG_EN_VOTERS,
 };
 
+static int battery_max_current = -1;
+
 enum hw_aicl_rerun_enable_indirect_voters {
 	/* enabled via device tree */
 	DEFAULT_CONFIG_HW_AICL_VOTER,
@@ -462,7 +466,7 @@ module_param_named(
 	int, S_IRUSR | S_IWUSR
 );
 
-static int smbchg_default_dcp_icl_ma = 1800;
+static int smbchg_default_dcp_icl_ma = 1600;
 module_param_named(
 	default_dcp_icl_ma, smbchg_default_dcp_icl_ma,
 	int, S_IRUSR | S_IWUSR
@@ -1611,11 +1615,17 @@ static int smbchg_set_high_usb_chg_current(struct smbchg_chip *chip,
 {
 	int i, rc;
 	u8 usb_cur_val;
+	pr_err("smbchg_set_high_usb_chg_current set current_ma %d\n", current_ma);
 
+	if (battery_max_current > 0 && current_ma > battery_max_current) {
+		pr_err("smbchg_set_high_usb_chg_current current_ma was %d, set to %d \n", current_ma, battery_max_current);
+		current_ma = battery_max_current;
+	}
 	if (current_ma == CURRENT_100_MA) {
 		rc = smbchg_sec_masked_write(chip,
 					chip->usb_chgpth_base + CHGPTH_CFG,
 					CFG_USB_2_3_SEL_BIT, CFG_USB_2);
+		pr_err("smbchg_set_high_usb_chg_current smbchg_sec_masked_write usb_cur_val %u \n", usb_cur_val);
 		if (rc < 0) {
 			pr_err("Couldn't set CFG_USB_2 rc=%d\n", rc);
 			return rc;
@@ -4178,6 +4188,54 @@ static struct attribute_group smbchg_led_attr_group = {
 	.attrs = led_blink_attributes
 };
 
+
+//add by lifeng for close CHG_LED
+
+#if 1
+static int smbchg_close_chg_led(struct smbchg_chip *chip)
+{
+       u8 reg,mask;
+       int rc;
+       mask = CHG_LED_CTRL_BIT;
+       reg = LED_CHG_CTRL_BIT;
+
+       rc = smbchg_masked_write(chip, chip->bat_if_base + CMD_CHG_LED_REG,
+                       mask, reg);
+       if (rc < 0)
+
+	{
+               dev_err(chip->dev,
+                               "Couldn't write LED_CTRL_BIT rc=%d\n", rc);
+
+		return rc;
+	}
+
+       
+       reg = CHG_LED_OFF << CHG_LED_SHIFT;
+
+       
+       
+       power_supply_set_hi_power_state(chip->bms_psy, 0);
+
+       
+       rc = smbchg_sec_masked_write(chip,
+                       chip->bat_if_base + CMD_CHG_LED_REG,
+                      LED_BLINKING_CFG_MASK, reg);
+       if (rc)
+               dev_err(chip->dev, "Couldn't write CHG_LED rc=%d\n",
+                               rc);
+       return rc;
+}
+
+
+
+#endif
+//add end
+
+
+
+
+
 static int smbchg_register_chg_led(struct smbchg_chip *chip)
 {
 	int rc;
@@ -5788,6 +5846,43 @@ static int smbchg_get_iusb(struct smbchg_chip *chip)
 	return iusb_ua;
 }
 
+static ssize_t smb_battery_max_current_show(struct device *dev,
+					struct device_attribute *attr, char *buf)
+{
+	return sprintf(buf, "%d\n", battery_max_current);
+}
+
+static ssize_t smb_battery_max_current_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	int retval;
+	unsigned int input;
+	struct smbchg_chip *chip = dev_get_drvdata(dev);
+
+	if (sscanf(buf, "%d", &input) < 0) {
+		retval = -EINVAL;
+		battery_max_current = -1;
+		goto exit;
+	}
+
+	battery_max_current = input;
+
+	if (battery_max_current > chip->dc_target_current_ma)
+		battery_max_current = chip->dc_target_current_ma;
+
+	if (battery_max_current > 0 ){
+		smbchg_set_high_usb_chg_current(chip, battery_max_current);
+	}
+exit:
+	return retval;
+}
+
+static struct device_attribute attrs[] = {
+	__ATTR(BatteryMaxCurrent, S_IRUGO | S_IWUSR | S_IWGRP,
+			smb_battery_max_current_show,
+			smb_battery_max_current_store),
+};
+
 static enum power_supply_property smbchg_battery_properties[] = {
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_PRESENT,
@@ -6039,6 +6134,21 @@ static int smbchg_battery_get_property(struct power_supply *psy,
 		return -EINVAL;
 	}
 	return 0;
+}
+
+static void usb_state_check_work(struct work_struct *work)
+{
+	struct smbchg_chip *chip = container_of(work,
+				struct smbchg_chip,
+				usb_state_work.work);
+	pr_err("Check usb state during power on\n");
+        if(chip->usb_present != is_usb_present(chip)) {
+		chip->usb_present = is_usb_present(chip);
+                pr_err("force update usb status\n");
+                update_usb_status(chip, is_usb_present(chip), true);
+        }
+
+	return;
 }
 
 static char *smbchg_dc_supplicants[] = {
@@ -7284,7 +7394,7 @@ static struct of_device_id smbchg_match_table[] = {
 };
 
 #define DC_MA_MIN 300
-#define DC_MA_MAX 2000
+#define DC_MA_MAX 1800
 #define OF_PROP_READ(chip, prop, dt_property, retval, optional)		\
 do {									\
 	if (retval)							\
@@ -7399,7 +7509,7 @@ err:
 }
 
 #define DEFAULT_VLED_MAX_UV		3500000
-#define DEFAULT_FCC_MA			2000
+#define DEFAULT_FCC_MA			1500
 static int smb_parse_dt(struct smbchg_chip *chip)
 {
 	int rc = 0, ocp_thresh = -EINVAL;
@@ -8187,6 +8297,7 @@ static int smbchg_probe(struct spmi_device *spmi)
 			smbchg_parallel_usb_en_work);
 	INIT_DELAYED_WORK(&chip->vfloat_adjust_work, smbchg_vfloat_adjust_work);
 	INIT_DELAYED_WORK(&chip->hvdcp_det_work, smbchg_hvdcp_det_work);
+	INIT_DELAYED_WORK(&chip->usb_state_work, usb_state_check_work);
 	init_completion(&chip->src_det_lowered);
 	init_completion(&chip->src_det_raised);
 	init_completion(&chip->usbin_uv_lowered);
@@ -8247,6 +8358,14 @@ static int smbchg_probe(struct spmi_device *spmi)
 	if (rc < 0) {
 		dev_err(&spmi->dev,
 			"Unable to determine init status rc = %d\n", rc);
+		goto out;
+	}
+	
+
+	rc = smbchg_close_chg_led(chip);
+	if (rc < 0) {
+		dev_err(&spmi->dev,
+			"Unable to close chg_led rc = %d\n", rc);
 		goto out;
 	}
 
@@ -8320,8 +8439,18 @@ static int smbchg_probe(struct spmi_device *spmi)
 
 	rerun_hvdcp_det_if_necessary(chip);
 
+	schedule_delayed_work(&chip->usb_state_work,
+				msecs_to_jiffies(10000));
+
 	dump_regs(chip);
 	create_debugfs_entries(chip);
+	rc = sysfs_create_file(&chip->dev->kobj,&attrs[0].attr);
+	if (rc < 0) {
+		dev_err(chip->dev,
+				"%s: Failed to create sysfs attributes\n",
+				__func__);
+        sysfs_remove_file(&chip->dev->kobj,&attrs[0].attr);
+	}
 	dev_info(chip->dev,
 		"SMBCHG successfully probe Charger version=%s Revision DIG:%d.%d ANA:%d.%d batt=%d dc=%d usb=%d\n",
 			version_str[chip->schg_version],
