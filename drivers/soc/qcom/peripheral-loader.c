@@ -581,6 +581,13 @@ static int pil_init_mmap(struct pil_desc *desc, const struct pil_mdt *mdt)
 	return pil_init_entry_addr(priv, mdt);
 }
 
+struct pil_map_fw_info {
+	void *region;
+	struct dma_attrs attrs;
+	phys_addr_t base_addr;
+	struct device *dev;
+};
+
 static void pil_release_mmap(struct pil_desc *desc)
 {
 	struct pil_priv *priv = desc->priv;
@@ -623,13 +630,6 @@ static void pil_clear_segment(struct pil_desc *desc)
 }
 
 #define IOMAP_SIZE SZ_1M
-
-struct pil_map_fw_info {
-	void *region;
-	struct dma_attrs attrs;
-	phys_addr_t base_addr;
-	struct device *dev;
-};
 
 static void *map_fw_mem(phys_addr_t paddr, size_t size, void *data)
 {
@@ -917,6 +917,8 @@ out:
 					&desc->attrs);
 			priv->region = NULL;
 		}
+		if (desc->clear_fw_region && priv->region_start)
+			pil_clear_segment(desc);
 		pil_release_mmap(desc);
 	}
 	return ret;
