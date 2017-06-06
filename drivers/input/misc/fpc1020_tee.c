@@ -121,7 +121,7 @@ found:
 			else
 			{
 			dev_info(dev, "vreg_setup get  %s!\n",name);
-			}	
+			}
 		}
 		if (regulator_count_voltages(vreg) > 0) {
 			rc = regulator_set_voltage(vreg, vreg_conf[i].vmin,
@@ -133,7 +133,7 @@ found:
 			else
 				dev_info(dev,
 					"able to set voltage on %s, %d\n",
-					name, rc);				
+					name, rc);
 		}
 		rc = regulator_set_optimum_mode(vreg, vreg_conf[i].ua_load);
 		if (rc < 0)
@@ -141,7 +141,7 @@ found:
 					name, rc);
 		else
 			dev_info(dev, "able to set current on %s, %d\n",
-					name, rc);			
+					name, rc);
 		rc = regulator_enable(vreg);
 		if (rc) {
 			dev_err(dev, "error enabling %s: %d\n", name, rc);
@@ -439,10 +439,10 @@ static int device_prepare(struct  fpc1020_data *fpc1020, bool enable)
 		rc = spi_set_fabric(fpc1020, true);
 		if (rc)
 			goto exit_3;
-		
+
 		(void)select_pin_ctl(fpc1020, "fpc1020_reset_active");
 		usleep_range(PWR_ON_STEP_SLEEP, PWR_ON_STEP_RANGE1);
-		
+
 		rc = set_pipe_ownership(fpc1020, true);
 		if (rc)
 			goto exit_4;
@@ -460,8 +460,8 @@ exit_2:
 		(void)vreg_setup(fpc1020, "vdd_io", false);
 exit_1:
 		(void)vreg_setup(fpc1020, "vcc_spi", false);
-exit:		
-		fpc1020->prepared = false;		
+exit:
+		fpc1020->prepared = false;
 	} else {
 		rc = 0;
 	}
@@ -604,7 +604,7 @@ static int fpc1020_probe(struct i2c_client *client,const struct i2c_device_id *i
 	int irqf;
 	struct device_node *np = dev->of_node;
 	u32 val;
-	
+
 	struct fpc1020_data *fpc1020 = devm_kzalloc(dev, sizeof(*fpc1020),
 			GFP_KERNEL);
 
@@ -733,7 +733,7 @@ exit:
 }
 
 static int fpc1020_remove(struct i2c_client *client)
-{	
+{
 	struct fpc1020_data *fpc1020 = i2c_get_clientdata(client);
 
 	sysfs_remove_group(&client->dev.kobj, &attribute_group);
