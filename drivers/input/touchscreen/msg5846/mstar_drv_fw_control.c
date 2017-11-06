@@ -56,9 +56,9 @@ extern u32 g_FwDataCount;
 
 extern struct mutex g_Mutex;
 
-extern u16 DEMO_MODE_PACKET_LENGTH; 
+extern u16 DEMO_MODE_PACKET_LENGTH;
 extern u16 DEBUG_MODE_PACKET_LENGTH;
-extern u16 MAX_TOUCH_NUM; 
+extern u16 MAX_TOUCH_NUM;
 
 extern u16 FIRMWARE_MODE_UNKNOWN_MODE;
 extern u16 FIRMWARE_MODE_DEMO_MODE;
@@ -146,7 +146,7 @@ static struct work_struct _gUpdateFirmwareBySwIdWork;
 static struct workqueue_struct *_gUpdateFirmwareBySwIdWorkQueue = NULL;
 
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
-static u8 _gTempData[1024]; 
+static u8 _gTempData[1024];
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
 
 #else
@@ -228,9 +228,9 @@ u8 g_GestureWakeupFlag = 0;
 #ifdef CONFIG_ENABLE_PROXIMITY_DETECTION
 u8 g_EnableTpProximity = 0;
 #if defined(CONFIG_TOUCH_DRIVER_RUN_ON_SPRD_PLATFORM) || defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM)
-u8 g_FaceClosingTp = 0; // for QCOM platform -> 1 : close to, 0 : far away 
+u8 g_FaceClosingTp = 0; // for QCOM platform -> 1 : close to, 0 : far away
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
-u8 g_FaceClosingTp = 1; // for MTK platform -> 0 : close to, 1 : far away 
+u8 g_FaceClosingTp = 1; // for MTK platform -> 0 : close to, 1 : far away
 #endif
 #endif //CONFIG_ENABLE_PROXIMITY_DETECTION
 
@@ -276,7 +276,7 @@ static void _DrvFwCtrlEraseEmemC33(EmemType_e eEmemType)
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 
     // Disable watchdog
     RegSetLByteValue(0x3C60, 0x55);
@@ -320,39 +320,39 @@ static void _DrvFwCtrlMsg22xxGetTpVendorCode(u8 *pTpVendorCode)
         u16 nRegData1, nRegData2;
 
         DrvPlatformLyrTouchDeviceResetHw();
-    
+
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
         DbBusIICUseBus();
         DbBusIICReshape();
         mdelay(100);
-        
+
         // Stop mcu
-        RegSetLByteValue(0x0FE6, 0x01); 
+        RegSetLByteValue(0x0FE6, 0x01);
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
         // Exit flash low power mode
-        RegSetLByteValue(0x1619, BIT1); 
+        RegSetLByteValue(0x1619, BIT1);
 
         // Change PIU clock to 48MHz
-        RegSetLByteValue(0x1E23, BIT6); 
+        RegSetLByteValue(0x1E23, BIT6);
 
         // Change mcu clock deglitch mux source
-        RegSetLByteValue(0x1E54, BIT0); 
+        RegSetLByteValue(0x1E54, BIT0);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
         // Stop watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
 
         // RIU password
-        RegSet16BitValue(0x161A, 0xABBA); 
+        RegSet16BitValue(0x161A, 0xABBA);
 
         RegSet16BitValue(0x1600, 0xC1E9); // Set start address for tp vendor code on info block(Actually, start reading from 0xC1E8)
-    
+
         // Enable burst mode
 //        RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01));
 
-        RegSetLByteValue(0x160E, 0x01); 
+        RegSetLByteValue(0x160E, 0x01);
 
         nRegData1 = RegGet16BitValue(0x1604);
         nRegData2 = RegGet16BitValue(0x1606);
@@ -361,17 +361,17 @@ static void _DrvFwCtrlMsg22xxGetTpVendorCode(u8 *pTpVendorCode)
         pTpVendorCode[1] = (nRegData2 & 0xFF);
         pTpVendorCode[2] = ((nRegData2 >> 8) & 0xFF);
 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[0] = 0x%x , %c \n", pTpVendorCode[0], pTpVendorCode[0]); 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[1] = 0x%x , %c \n", pTpVendorCode[1], pTpVendorCode[1]); 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[2] = 0x%x , %c \n", pTpVendorCode[2], pTpVendorCode[2]); 
-        
-        // Clear burst mode
-//        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));      
+        DBG(&g_I2cClient->dev, "pTpVendorCode[0] = 0x%x , %c \n", pTpVendorCode[0], pTpVendorCode[0]);
+        DBG(&g_I2cClient->dev, "pTpVendorCode[1] = 0x%x , %c \n", pTpVendorCode[1], pTpVendorCode[1]);
+        DBG(&g_I2cClient->dev, "pTpVendorCode[2] = 0x%x , %c \n", pTpVendorCode[2], pTpVendorCode[2]);
 
-        RegSet16BitValue(0x1600, 0x0000); 
+        // Clear burst mode
+//        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
+
+        RegSet16BitValue(0x1600, 0x0000);
 
         // Clear RIU password
-        RegSet16BitValue(0x161A, 0x0000); 
+        RegSet16BitValue(0x161A, 0x0000);
 
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
@@ -385,21 +385,21 @@ static u16 _DrvFwCtrlMsg22xxGetTrimByte1(void)
 {
     u16 nRegData = 0;
     u16 nTrimByte1 = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    RegSet16BitValue(0x161E, 0xBEAF); 
-    RegSet16BitValue(0x1608, 0x0006); 
-    RegSet16BitValue(0x160E, 0x0010); 
-    RegSet16BitValue(0x1608, 0x1006); 
-    RegSet16BitValue(0x1600, 0x0001); 
+    RegSet16BitValue(0x161E, 0xBEAF);
+    RegSet16BitValue(0x1608, 0x0006);
     RegSet16BitValue(0x160E, 0x0010);
-    
+    RegSet16BitValue(0x1608, 0x1006);
+    RegSet16BitValue(0x1600, 0x0001);
+    RegSet16BitValue(0x160E, 0x0010);
+
     mdelay(10);
-    
+
     RegSet16BitValue(0x1608, 0x1846);
     RegSet16BitValue(0x160E, 0x0010);
-    
+
     mdelay(10);
 
     nRegData = RegGet16BitValue(0x1624);
@@ -410,7 +410,7 @@ static u16 _DrvFwCtrlMsg22xxGetTrimByte1(void)
     nTrimByte1 = nRegData;
 
     DBG(&g_I2cClient->dev, "nTrimByte1 = 0x%X ***\n", nTrimByte1);
-    
+
     return nTrimByte1;
 }
 
@@ -419,21 +419,21 @@ static void _DrvFwCtrlMsg22xxChangeVoltage(void)
     u16 nTrimValue = 0;
     u16 nNewTrimValue = 0;
     u16 nTempValue = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     RegSet16BitValue(0x1840, 0xA55A);
-	
+
     udelay(1000); // delay 1 ms
 
     nTrimValue = RegGet16BitValue(0x1820);
 
     udelay(1000); // delay 1 ms
-    
+
     nTrimValue = nTrimValue & 0x1F;
     nTempValue = 0x1F & nTrimValue;
     nNewTrimValue = (nTempValue + 0x07);
-    
+
     if (nNewTrimValue >= 0x20)
     {
         nNewTrimValue = nNewTrimValue - 0x20;
@@ -442,7 +442,7 @@ static void _DrvFwCtrlMsg22xxChangeVoltage(void)
     {
         nNewTrimValue = nNewTrimValue;
     }
-    
+
     if ((nTempValue & 0x10) != 0x10)
     {
         if (nNewTrimValue >= 0x0F && nNewTrimValue < 0x1F)
@@ -477,11 +477,11 @@ static void _DrvFwCtrlMsg22xxRestoreVoltage(void)
     udelay(1000); // delay 1 ms
 }
 
-static u32 _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
 {
     u16 nCrcDown = 0;
     u32 nTimeOut = 0;
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
 
@@ -493,46 +493,46 @@ static u32 _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
-    
+    RegSetLByteValue(0x0FE6, 0x01);
+
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     // RIU password
-    RegSet16BitValue(0x161A, 0xABBA);      
+    RegSet16BitValue(0x161A, 0xABBA);
 
     // Set PCE high
-    RegSetLByteValue(0x1618, 0x40);      
+    RegSetLByteValue(0x1618, 0x40);
 
     if (eEmemType == EMEM_MAIN)
     {
         // Set start address and end address for main block
-        RegSet16BitValue(0x1600, 0x0000);      
-        RegSet16BitValue(0x1640, 0xBFF8);      
+        RegSet16BitValue(0x1600, 0x0000);
+        RegSet16BitValue(0x1640, 0xBFF8);
     }
     else if (eEmemType == EMEM_INFO)
     {
         // Set start address and end address for info block
-        RegSet16BitValue(0x1600, 0xC000);      
-        RegSet16BitValue(0x1640, 0xC1F8);      
+        RegSet16BitValue(0x1600, 0xC000);
+        RegSet16BitValue(0x1640, 0xC1F8);
     }
 
     // CRC reset
-    RegSet16BitValue(0x164E, 0x0001);      
+    RegSet16BitValue(0x164E, 0x0001);
 
-    RegSet16BitValue(0x164E, 0x0000);   
-    
+    RegSet16BitValue(0x164E, 0x0000);
+
     // Trigger CRC check
-    RegSetLByteValue(0x160E, 0x20);   
+    RegSetLByteValue(0x160E, 0x20);
     mdelay(10);
-       
+
     while (1)
     {
         DBG(&g_I2cClient->dev, "Wait CRC down\n");
@@ -540,7 +540,7 @@ static u32 _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
         nCrcDown = RegGet16BitValue(0x164E);
         if (nCrcDown == 2)
         {
-            break;		
+            break;
         }
         mdelay(10);
 
@@ -551,19 +551,19 @@ static u32 _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
             goto GetCRCEnd;
         }
     }
-    
+
     nRetVal = RegGet16BitValue(0x1652);
     nRetVal = (nRetVal << 16) | RegGet16BitValue(0x1650);
 
     GetCRCEnd:
-	
+
     DBG(&g_I2cClient->dev, "Hardware CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
 static void _DrvFwCtrlMsg22xxConvertFwDataTwoDimenToOneDimen(u8 szTwoDimenFwData[][1024], u8* pOneDimenFwData)
@@ -591,13 +591,13 @@ static void _DrvFwCtrlMsg22xxConvertFwDataTwoDimenToOneDimen(u8 szTwoDimenFwData
     }
 }
 
-#ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL 
+#ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
 static u32 _DrvFwCtrlPointDistance(u16 nX, u16 nY, u16 nPrevX, u16 nPrevY)
-{ 
+{
     u32 nRetVal = 0;
-	
+
     nRetVal = (((nX-nPrevX)*(nX-nPrevX))+((nY-nPrevY)*(nY-nPrevY)));
-    
+
     return nRetVal;
 }
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
@@ -613,7 +613,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
     u32 nTempY;
 #endif
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
-    static u8 nPrevTouchNum = 0; 
+    static u8 nPrevTouchNum = 0;
     static u16 szPrevX[SELF_MAX_TOUCH_NUM] = {0xFFFF, 0xFFFF};
     static u16 szPrevY[SELF_MAX_TOUCH_NUM] = {0xFFFF, 0xFFFF};
     static u8  szPrevPress[SELF_MAX_TOUCH_NUM] = {0};
@@ -639,16 +639,16 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         {
             g_InterruptCount = 0; // Reset count if overflow
             DBG(&g_I2cClient->dev, "g_InterruptCount reset to 0\n");
-        }	
+        }
 
         if (g_InterruptCount == 0)
         {
             // Get start time
             do_gettimeofday(&g_StartTime);
-    
-            DBG(&g_I2cClient->dev, "Start time : %lu sec, %lu msec\n", g_StartTime.tv_sec,  g_StartTime.tv_usec); 
+
+            DBG(&g_I2cClient->dev, "Start time : %lu sec, %lu msec\n", g_StartTime.tv_sec,  g_StartTime.tv_usec);
         }
-        
+
         g_InterruptCount ++;
 
         DBG(&g_I2cClient->dev, "g_InterruptCount = %d\n", g_InterruptCount);
@@ -673,7 +673,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         }
 #endif //CONFIG_ENABLE_GESTURE_WAKEUP
     } //IS_FIRMWARE_DATA_LOG_ENABLED
-    
+
     nCheckSum = DrvCommonCalculateCheckSum(&pPacket[0], nCheckSumIndex);
     DBG(&g_I2cClient->dev, "check sum : [%x] == [%x]? \n", pPacket[nCheckSumIndex], nCheckSum);
 
@@ -691,7 +691,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         {
             nWakeupMode = pPacket[4];
             bIsCorrectFormat = 1;
-        } 
+        }
 #ifdef CONFIG_ENABLE_GESTURE_DEBUG_MODE
         else if (g_ChipType == CHIP_TYPE_MSG22XX && pPacket[0] == 0xA7 && pPacket[1] == 0x00 && pPacket[2] == 0x80 && pPacket[3] == PACKET_TYPE_GESTURE_DEBUG)
         {
@@ -699,12 +699,12 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 
             nWakeupMode = pPacket[4];
             bIsCorrectFormat = 1;
-            
+
             for (a = 0; a < 0x80; a ++)
             {
                 g_LogGestureDebug[a] = pPacket[a];
             }
-            
+
             if (!(pPacket[5] >> 7))// LCM Light Flag = 0
             {
                 nWakeupMode = 0xFE;
@@ -732,14 +732,14 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
             {
                 u32 nTranX = 0;
                 u32 nTranY = 0;
-                
+
                 _DrvFwCtrlCoordinate(&pPacket[a], &nTranX, &nTranY);
                 g_LogGestureInfor[nTmpCount] = nTranX;
                 nTmpCount++;
                 g_LogGestureInfor[nTmpCount] = nTranY;
                 nTmpCount++;
             }
-            
+
             g_LogGestureInfor[nTmpCount] = pPacket[126]; //Dummy
             nTmpCount++;
             g_LogGestureInfor[nTmpCount] = pPacket[127]; //checksum
@@ -752,8 +752,8 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
             nWakeupMode = pPacket[5];
             bIsCorrectFormat = 1;
         }
-        
-        if (bIsCorrectFormat) 
+
+        if (bIsCorrectFormat)
         {
             DBG(&g_I2cClient->dev, "nWakeupMode = 0x%x\n", nWakeupMode);
 
@@ -768,10 +768,10 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     input_sync(g_InputDevice);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x60:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_UP_DIRECT_FLAG;
-                    
+
                     DBG(&g_I2cClient->dev, "Light up screen by UP_DIRECT gesture wakeup.\n");
 
 //                    input_report_key(g_InputDevice, KEY_UP, 1);
@@ -780,7 +780,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_UP, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x61:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_DOWN_DIRECT_FLAG;
 
@@ -792,7 +792,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_DOWN, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x62:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_LEFT_DIRECT_FLAG;
 
@@ -804,7 +804,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_LEFT, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x63:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_RIGHT_DIRECT_FLAG;
 
@@ -816,7 +816,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_RIGHT, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x64:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_m_CHARACTER_FLAG;
 
@@ -828,7 +828,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_M, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x65:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_W_CHARACTER_FLAG;
 
@@ -840,7 +840,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
 //                    input_report_key(g_InputDevice, KEY_W, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x66:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_C_CHARACTER_FLAG;
 
@@ -1546,7 +1546,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     _gGestureWakeupValue[0] = 0;
                     _gGestureWakeupValue[1] = 0;
                     DBG(&g_I2cClient->dev, "Un-supported gesture wakeup mode. Please check your device driver code.\n");
-                    break;		
+                    break;
             }
 
             DBG(&g_I2cClient->dev, "_gGestureWakeupValue[0] = 0x%x\n", _gGestureWakeupValue[0]);
@@ -1556,7 +1556,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         {
             DBG(&g_I2cClient->dev, "gesture wakeup packet format is incorrect.\n");
         }
-        
+
 #ifdef CONFIG_ENABLE_GESTURE_DEBUG_MODE
         // Notify android application to retrieve log data mode packet from device driver by sysfs.
         if (g_GestureKObj != NULL && pPacket[3] == PACKET_TYPE_GESTURE_DEBUG)
@@ -1596,7 +1596,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         nTempX = nY;
         nX = nTempX;
         nY = nTempY;
-        
+
         nTempY = nDeltaX;
         nTempX = nDeltaY;
         nDeltaX = nTempX;
@@ -1647,7 +1647,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     }
 
                     DBG(&g_I2cClient->dev, "g_FaceClosingTp = %d\n", g_FaceClosingTp);
-                   
+
                     return -1;
                 }
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
@@ -1664,7 +1664,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     {
                         g_FaceClosingTp = 1;
                     }
-                    
+
                     DBG(&g_I2cClient->dev, "g_FaceClosingTp = %d\n", g_FaceClosingTp);
 
                     // map and store data to hwm_sensor_data
@@ -1676,10 +1676,10 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     {
                         DBG(&g_I2cClient->dev, "call hwmsen_get_interrupt_data() failed = %d\n", nErr);
                     }
-                    
+
                     return -1;
                 }
-#endif               
+#endif
 #endif //CONFIG_ENABLE_PROXIMITY_DETECTION
 
                 /* 0x00 is key up, 0xff is touch screen up */
@@ -1707,14 +1707,14 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[0].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[0].key_y;
-                    }           
+                    }
                     else if (pPacket[5] == 2) // TOUCH_KEY_BACK
                     {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[2].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[2].key_y;
-                    }           
-                    else if (pPacket[5] == 8) // TOUCH_KEY_SEARCH 
-                    {	
+                    }
+                    else if (pPacket[5] == 8) // TOUCH_KEY_SEARCH
+                    {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[3].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[3].key_y;
                     }
@@ -1740,14 +1740,14 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[0][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[0][1];
-                }           
+                }
                 else if (pPacket[5] == 2) // TOUCH_KEY_BACK
                 {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[2][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[2][1];
-                }           
-                else if (pPacket[5] == 8) // TOUCH_KEY_SEARCH 
-                {	
+                }
+                else if (pPacket[5] == 8) // TOUCH_KEY_SEARCH
+                {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[3][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[3][1];
                 }
@@ -1773,12 +1773,12 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 DBG(&g_I2cClient->dev, "touch end\n");
                 pInfo->nFingerNum = 0; //touch end
                 pInfo->nTouchKeyCode = 0;
-                pInfo->nTouchKeyMode = 0;    
+                pInfo->nTouchKeyMode = 0;
             }
 
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
             _gPrevTouchStatus = 0;
-#endif //CONFIG_ENABLE_TYPE_B_PROTOCOL 
+#endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
         }
         else
         {
@@ -1813,7 +1813,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
             else
             {   /* two touch points */
                 u32 nX2, nY2;
-                
+
                 pInfo->nFingerNum = 2; // two touch
                 /* Finger 1 */
                 pInfo->tPoint[0].nX = (nX * TOUCH_SCREEN_X_MAX) / TPD_WIDTH;
@@ -1824,7 +1824,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 {
                     nDeltaX -= 4096;
                 }
-                
+
                 if (nDeltaY > 2048)
                 {
                     nDeltaY -= 4096;
@@ -1833,7 +1833,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 nX2 = (u32)(nX + nDeltaX);
                 nY2 = (u32)(nY + nDeltaY);
 
-                pInfo->tPoint[1].nX = (nX2 * TOUCH_SCREEN_X_MAX) / TPD_WIDTH; 
+                pInfo->tPoint[1].nX = (nX2 * TOUCH_SCREEN_X_MAX) / TPD_WIDTH;
                 pInfo->tPoint[1].nY = (nY2 * TOUCH_SCREEN_Y_MAX) / TPD_HEIGHT;
                 DBG(&g_I2cClient->dev, "[%s]: point2[x,y]=[%d,%d]\n", __func__, pInfo->tPoint[1].nX, pInfo->tPoint[1].nY);
 
@@ -1851,7 +1851,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     szX[i] = pInfo->tPoint[i].nX;
                     szY[i] = pInfo->tPoint[i].nY;
                 }
-			
+
                 if (/*(pInfo->nFingerNum == 1)&&*/(nPrevTouchNum == 2))
                 {
                     if (_DrvFwCtrlPointDistance(szX[0], szY[0], szPrevX[0], szPrevY[0]) > _DrvFwCtrlPointDistance(szX[0], szY[0], szPrevX[1], szPrevY[1]))
@@ -1932,7 +1932,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
         nTempX = nY;
         nX = nTempX;
         nY = nTempY;
-        
+
         nTempY = nDeltaX;
         nTempX = nDeltaY;
         nDeltaX = nTempX;
@@ -1984,14 +1984,14 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[0].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[0].key_y;
-                    }           
+                    }
                     else if (pPacket[8] == 2) // TOUCH_KEY_BACK
                     {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[2].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[2].key_y;
-                    }           
-                    else if (pPacket[8] == 8) // TOUCH_KEY_SEARCH 
-                    {	
+                    }
+                    else if (pPacket[8] == 8) // TOUCH_KEY_SEARCH
+                    {
                         pInfo->tPoint[0].nX = tpd_dts_data.tpd_key_dim_local[3].key_x;
                         pInfo->tPoint[0].nY = tpd_dts_data.tpd_key_dim_local[3].key_y;
                     }
@@ -2017,14 +2017,14 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[0][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[0][1];
-                }           
+                }
                 else if (pPacket[8] == 2) // TOUCH_KEY_BACK
                 {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[2][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[2][1];
-                }           
-                else if (pPacket[8] == 8) // TOUCH_KEY_SEARCH 
-                {	
+                }
+                else if (pPacket[8] == 8) // TOUCH_KEY_SEARCH
+                {
                     pInfo->tPoint[0].nX = g_TpVirtualKeyDimLocal[3][0];
                     pInfo->tPoint[0].nY = g_TpVirtualKeyDimLocal[3][1];
                 }
@@ -2050,12 +2050,12 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 DBG(&g_I2cClient->dev, "touch end\n");
                 pInfo->nFingerNum = 0; //touch end
                 pInfo->nTouchKeyCode = 0;
-                pInfo->nTouchKeyMode = 0;    
+                pInfo->nTouchKeyMode = 0;
             }
 
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
             _gPrevTouchStatus = 0;
-#endif //CONFIG_ENABLE_TYPE_B_PROTOCOL 
+#endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
         }
         else
         {
@@ -2090,7 +2090,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
             else
             {   /* two touch points */
                 u32 nX2, nY2;
-                
+
                 pInfo->nFingerNum = 2; // two touch
                 /* Finger 1 */
                 pInfo->tPoint[0].nX = (nX * TOUCH_SCREEN_X_MAX) / TPD_WIDTH;
@@ -2101,7 +2101,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 {
                     nDeltaX -= 4096;
                 }
-                
+
                 if (nDeltaY > 2048)
                 {
                     nDeltaY -= 4096;
@@ -2110,7 +2110,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                 nX2 = (u32)(nX + nDeltaX);
                 nY2 = (u32)(nY + nDeltaY);
 
-                pInfo->tPoint[1].nX = (nX2 * TOUCH_SCREEN_X_MAX) / TPD_WIDTH; 
+                pInfo->tPoint[1].nX = (nX2 * TOUCH_SCREEN_X_MAX) / TPD_WIDTH;
                 pInfo->tPoint[1].nY = (nY2 * TOUCH_SCREEN_Y_MAX) / TPD_HEIGHT;
                 DBG(&g_I2cClient->dev, "[%s]: point2[x,y]=[%d,%d]\n", __func__, pInfo->tPoint[1].nX, pInfo->tPoint[1].nY);
 
@@ -2128,7 +2128,7 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
                     szX[i] = pInfo->tPoint[i].nX;
                     szY[i] = pInfo->tPoint[i].nY;
                 }
-			
+
                 if (/*(pInfo->nFingerNum == 1)&&*/(nPrevTouchNum == 2))
                 {
                     if (_DrvFwCtrlPointDistance(szX[0], szY[0], szPrevX[0], szPrevY[0]) > _DrvFwCtrlPointDistance(szX[0], szY[0], szPrevX[1], szPrevY[1]))
@@ -2192,16 +2192,16 @@ static s32 _DrvFwCtrlSelfParsePacket(u8 *pPacket, u16 nLength, SelfTouchInfo_t *
             _gPrevTouchStatus = 1;
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
 
-            // Notify android application to retrieve log data mode packet from device driver by sysfs.   
+            // Notify android application to retrieve log data mode packet from device driver by sysfs.
             if (g_TouchKObj != NULL)
             {
                 char *pEnvp[2];
-                s32 nRetVal = 0; 
+                s32 nRetVal = 0;
 
-                pEnvp[0] = "STATUS=GET_PACKET";  
-                pEnvp[1] = NULL;  
-    
-                nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp); 
+                pEnvp[0] = "STATUS=GET_PACKET";
+                pEnvp[1] = NULL;
+
+                nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp);
                 DBG(&g_I2cClient->dev, "kobject_uevent_env() nRetVal = %d\n", nRetVal);
             }
         }
@@ -2241,7 +2241,7 @@ static s32 _DrvFwCtrlMutualParsePacket(u8 *pPacket, u16 nLength, MutualTouchInfo
     u32 i;
     u8 nCheckSum = 0;
     u32 nX = 0, nY = 0;
-#ifdef CONFIG_ENABLE_ESD_EXTRA_SAFEGAURD 
+#ifdef CONFIG_ENABLE_ESD_EXTRA_SAFEGAURD
     static u8 ncheckcounter=0;
     DBG(&g_I2cClient->dev, "ESD_EXTRA_SAFEGAURD  ENABLE \n");
 #endif
@@ -2255,16 +2255,16 @@ static s32 _DrvFwCtrlMutualParsePacket(u8 *pPacket, u16 nLength, MutualTouchInfo
         {
             g_InterruptCount = 0; // Reset count if overflow
             DBG(&g_I2cClient->dev, "g_InterruptCount reset to 0\n");
-        }	
+        }
 
         if (g_InterruptCount == 0)
         {
             // Get start time
             do_gettimeofday(&g_StartTime);
-    
-            DBG(&g_I2cClient->dev, "Start time : %lu sec, %lu msec\n", g_StartTime.tv_sec,  g_StartTime.tv_usec); 
+
+            DBG(&g_I2cClient->dev, "Start time : %lu sec, %lu msec\n", g_StartTime.tv_sec,  g_StartTime.tv_usec);
         }
-        
+
         g_InterruptCount ++;
 
         DBG(&g_I2cClient->dev, "g_InterruptCount = %d\n", g_InterruptCount);
@@ -2278,7 +2278,7 @@ static s32 _DrvFwCtrlMutualParsePacket(u8 *pPacket, u16 nLength, MutualTouchInfo
     nCheckSum = DrvCommonCalculateCheckSum(&pPacket[0], (nLength-1));
     DBG(&g_I2cClient->dev, "checksum : [%x] == [%x]? \n", pPacket[nLength-1], nCheckSum);
 
-#ifdef CONFIG_ENABLE_ESD_EXTRA_SAFEGAURD 
+#ifdef CONFIG_ENABLE_ESD_EXTRA_SAFEGAURD
 
   if(  (g_GestureWakeupFlag == 1)||
   	 (g_FirmwareMode == FIRMWARE_MODE_DEBUG_MODE )
@@ -2286,9 +2286,9 @@ static s32 _DrvFwCtrlMutualParsePacket(u8 *pPacket, u16 nLength, MutualTouchInfo
    {
 				ncheckcounter=0;
    }
-  else 
+  else
    {
-	if( (pPacket[0] != 0x5a && (pPacket[nLength-1] != nCheckSum))|| 
+	if( (pPacket[0] != 0x5a && (pPacket[nLength-1] != nCheckSum))||
 		(pPacket[0] == 0x00 && pPacket[nLength-1]== 0x00 && nCheckSum== 0x00 )
 		)
     	{
@@ -2299,7 +2299,7 @@ static s32 _DrvFwCtrlMutualParsePacket(u8 *pPacket, u16 nLength, MutualTouchInfo
 		ncheckcounter=0;
 	}
    }
-    
+
 
 DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 
@@ -2326,7 +2326,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
         DBG(&g_I2cClient->dev, "pPacket[0]=%x \n pPacket[1]=%x pPacket[2]=%x pPacket[3]=%x pPacket[4]=%x pPacket[5]=%x \n", \
                 pPacket[0], pPacket[1], pPacket[2], pPacket[3], pPacket[4], pPacket[5]);
 
-        if (pPacket[0] == 0xA7 && pPacket[1] == 0x00 && pPacket[2] == 0x06 && pPacket[3] == PACKET_TYPE_GESTURE_WAKEUP) 
+        if (pPacket[0] == 0xA7 && pPacket[1] == 0x00 && pPacket[2] == 0x06 && pPacket[3] == PACKET_TYPE_GESTURE_WAKEUP)
         {
             nWakeupMode = pPacket[4];
             bIsCorrectFormat = 1;
@@ -2338,7 +2338,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 
             nWakeupMode = pPacket[4];
             bIsCorrectFormat = 1;
-            
+
             for (a = 0; a < 0x80; a ++)
             {
                 g_LogGestureDebug[a] = pPacket[a];
@@ -2371,14 +2371,14 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
             {
                 u32 nTranX = 0;
                 u32 nTranY = 0;
-				
+
                 _DrvFwCtrlCoordinate(&pPacket[a], &nTranX, &nTranY);
                 g_LogGestureInfor[nTmpCount] = nTranX;
                 nTmpCount++;
                 g_LogGestureInfor[nTmpCount] = nTranY;
                 nTmpCount++;
             }
-						
+
             g_LogGestureInfor[nTmpCount] = pPacket[126]; //Dummy
             nTmpCount++;
             g_LogGestureInfor[nTmpCount] = pPacket[127]; //checksum
@@ -2402,10 +2402,10 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                     input_sync(g_InputDevice);
                     input_report_key(g_InputDevice, KEY_WAKEUP, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x60:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_UP_DIRECT_FLAG;
-                    
+
                     DBG(&g_I2cClient->dev, "Light up screen by UP_DIRECT gesture wakeup.\n");
 
 //                    input_report_key(g_InputDevice, KEY_UP, 1);
@@ -2414,7 +2414,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_UP, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x61:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_DOWN_DIRECT_FLAG;
 
@@ -2426,7 +2426,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_DOWN, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x62:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_LEFT_DIRECT_FLAG;
 
@@ -2438,7 +2438,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_LEFT, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x63:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_RIGHT_DIRECT_FLAG;
 
@@ -2450,7 +2450,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_RIGHT, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x64:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_m_CHARACTER_FLAG;
 
@@ -2462,7 +2462,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_M, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x65:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_W_CHARACTER_FLAG;
 
@@ -2474,7 +2474,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 //                    input_report_key(g_InputDevice, KEY_W, 0);
                     input_report_key(g_InputDevice, KEY_POWER, 0);
                     input_sync(g_InputDevice);
-                    break;		
+                    break;
                 case 0x66:
                     _gGestureWakeupValue[0] = GESTURE_WAKEUP_MODE_C_CHARACTER_FLAG;
 
@@ -3181,7 +3181,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                     _gGestureWakeupValue[0] = 0;
                     _gGestureWakeupValue[1] = 0;
                     DBG(&g_I2cClient->dev, "Un-supported gesture wakeup mode. Please check your device driver code.\n");
-                    break;		
+                    break;
             }
 
             DBG(&g_I2cClient->dev, "_gGestureWakeupValue = 0x%x, 0x%x\n", _gGestureWakeupValue[0], _gGestureWakeupValue[1]);
@@ -3212,12 +3212,12 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 
 
     if (IS_FIRMWARE_DATA_LOG_ENABLED)
-    {    	
+    {
         if (g_FirmwareMode == FIRMWARE_MODE_DEMO_MODE && pPacket[0] != 0x5A)
         {
-#ifdef CONFIG_ENABLE_HOTKNOT 
+#ifdef CONFIG_ENABLE_HOTKNOT
             if (pPacket[3] != HOTKNOT_PACKET_TYPE && pPacket[3] != HOTKNOT_RECEIVE_PACKET_TYPE)
-#endif //CONFIG_ENABLE_HOTKNOT 
+#endif //CONFIG_ENABLE_HOTKNOT
             {
                 DBG(&g_I2cClient->dev, "WRONG DEMO MODE HEADER\n");
                 return -1;
@@ -3233,12 +3233,12 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
     {
         if (pPacket[0] != 0x5A)
         {
-#ifdef CONFIG_ENABLE_HOTKNOT 
+#ifdef CONFIG_ENABLE_HOTKNOT
             if (pPacket[3] != HOTKNOT_PACKET_TYPE && pPacket[3] != HOTKNOT_RECEIVE_PACKET_TYPE)
-#endif //CONFIG_ENABLE_HOTKNOT            
+#endif //CONFIG_ENABLE_HOTKNOT
             {
                 DBG(&g_I2cClient->dev, "WRONG DEMO MODE HEADER\n");
-                return -1;        
+                return -1;
             }
         }
     } //IS_FIRMWARE_DATA_LOG_ENABLED
@@ -3249,11 +3249,11 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #ifdef CONFIG_ENABLE_HOTKNOT
         if (((DemoHotKnotCmdRet_t*)pPacket)->nIdentify == DEMO_PD_PACKET_IDENTIFY)
         {
-            ReportHotKnotCmd(pPacket, nLength);				                       
-            return -1;    //return 0 will run key procedure  
+            ReportHotKnotCmd(pPacket, nLength);
+            return -1;    //return 0 will run key procedure
         }
-        else  
-#endif //CONFIG_ENABLE_HOTKNOT  
+        else
+#endif //CONFIG_ENABLE_HOTKNOT
         {
             for (i = 0; i < MAX_TOUCH_NUM; i ++)
             {
@@ -3262,21 +3262,21 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
                     _gCurrentTouch[i] = 0;
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
-                    
+
                     continue;
                 }
-		
+
                 nX = (((pPacket[(4*i)+1] & 0xF0) << 4) | (pPacket[(4*i)+2]));
                 nY = (((pPacket[(4*i)+1] & 0x0F) << 8) | (pPacket[(4*i)+3]));
-		
+
                 pInfo->tPoint[pInfo->nCount].nX = nX * TOUCH_SCREEN_X_MAX / TPD_WIDTH;
                 pInfo->tPoint[pInfo->nCount].nY = nY * TOUCH_SCREEN_Y_MAX / TPD_HEIGHT;
                 pInfo->tPoint[pInfo->nCount].nP = pPacket[4*(i+1)];
                 pInfo->tPoint[pInfo->nCount].nId = i;
-		
+
                 DBG(&g_I2cClient->dev, "[x,y]=[%d,%d]\n", nX, nY);
                 DBG(&g_I2cClient->dev, "point[%d] : (%d,%d) = %d\n", pInfo->tPoint[pInfo->nCount].nId, pInfo->tPoint[pInfo->nCount].nX, pInfo->tPoint[pInfo->nCount].nY, pInfo->tPoint[pInfo->nCount].nP);
-		
+
                 pInfo->nCount ++;
 
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
@@ -3284,16 +3284,16 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
             }
 
-            // Notify android application to retrieve demo mode packet from device driver by sysfs.   
+            // Notify android application to retrieve demo mode packet from device driver by sysfs.
             if (g_TouchKObj != NULL)
             {
                 char *pEnvp[2];
-                s32 nRetVal = 0;  
+                s32 nRetVal = 0;
 
-                pEnvp[0] = "STATUS=GET_DEMO_MODE_PACKET";  
-                pEnvp[1] = NULL;  
-            
-                nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp); 
+                pEnvp[0] = "STATUS=GET_DEMO_MODE_PACKET";
+                pEnvp[1] = NULL;
+
+                nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp);
                 DBG(&g_I2cClient->dev, "kobject_uevent_env() STATUS=GET_DEMO_MODE_PACKET, nRetVal = %d\n", nRetVal);
             }
         }
@@ -3310,7 +3310,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 
                 continue;
             }
-		
+
             nX = (((pPacket[(3*i)+4] & 0xF0) << 4) | (pPacket[(3*i)+5]));
             nY = (((pPacket[(3*i)+4] & 0x0F) << 8) | (pPacket[(3*i)+6]));
 
@@ -3318,10 +3318,10 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
             pInfo->tPoint[pInfo->nCount].nY = nY * TOUCH_SCREEN_Y_MAX / TPD_HEIGHT;
             pInfo->tPoint[pInfo->nCount].nP = 1;
             pInfo->tPoint[pInfo->nCount].nId = i;
-		
+
             DBG(&g_I2cClient->dev, "[x,y]=[%d,%d]\n", nX, nY);
             DBG(&g_I2cClient->dev, "point[%d] : (%d,%d) = %d\n", pInfo->tPoint[pInfo->nCount].nId, pInfo->tPoint[pInfo->nCount].nX, pInfo->tPoint[pInfo->nCount].nY, pInfo->tPoint[pInfo->nCount].nP);
-		
+
             pInfo->nCount ++;
 
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
@@ -3329,16 +3329,16 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
         }
 
-        // Notify android application to retrieve debug mode packet from device driver by sysfs.   
+        // Notify android application to retrieve debug mode packet from device driver by sysfs.
         if (g_TouchKObj != NULL)
         {
             char *pEnvp[2];
-            s32 nRetVal = 0;  
+            s32 nRetVal = 0;
 
-            pEnvp[0] = "STATUS=GET_DEBUG_MODE_PACKET";  
-            pEnvp[1] = NULL;  
-            
-            nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp); 
+            pEnvp[0] = "STATUS=GET_DEBUG_MODE_PACKET";
+            pEnvp[1] = NULL;
+
+            nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp);
             DBG(&g_I2cClient->dev, "kobject_uevent_env() STATUS=GET_DEBUG_MODE_PACKET, nRetVal = %d\n", nRetVal);
         }
     }
@@ -3354,7 +3354,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 
                 continue;
             }
-		
+
             nX = (((pPacket[(3*i)+5] & 0xF0) << 4) | (pPacket[(3*i)+6]));
             nY = (((pPacket[(3*i)+5] & 0x0F) << 8) | (pPacket[(3*i)+7]));
 
@@ -3362,10 +3362,10 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
             pInfo->tPoint[pInfo->nCount].nY = nY * TOUCH_SCREEN_Y_MAX / TPD_HEIGHT;
             pInfo->tPoint[pInfo->nCount].nP = 1;
             pInfo->tPoint[pInfo->nCount].nId = i;
-		
+
             DBG(&g_I2cClient->dev, "[x,y]=[%d,%d]\n", nX, nY);
             DBG(&g_I2cClient->dev, "point[%d] : (%d,%d) = %d\n", pInfo->tPoint[pInfo->nCount].nId, pInfo->tPoint[pInfo->nCount].nX, pInfo->tPoint[pInfo->nCount].nY, pInfo->tPoint[pInfo->nCount].nP);
-		
+
             pInfo->nCount ++;
 
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
@@ -3373,16 +3373,16 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
         }
 
-        // Notify android application to retrieve debug mode packet from device driver by sysfs.   
+        // Notify android application to retrieve debug mode packet from device driver by sysfs.
         if (g_TouchKObj != NULL)
         {
             char *pEnvp[2];
-            s32 nRetVal = 0;  
+            s32 nRetVal = 0;
 
-            pEnvp[0] = "STATUS=GET_DEBUG_MODE_PACKET";  
-            pEnvp[1] = NULL;  
-            
-            nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp); 
+            pEnvp[0] = "STATUS=GET_DEBUG_MODE_PACKET";
+            pEnvp[1] = NULL;
+
+            nRetVal = kobject_uevent_env(g_TouchKObj, KOBJ_CHANGE, pEnvp);
             DBG(&g_I2cClient->dev, "kobject_uevent_env() STATUS=GET_DEBUG_MODE_PACKET, nRetVal = %d\n", nRetVal);
         }
     }
@@ -3391,8 +3391,8 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
     {
         if (pPacket[3] == HOTKNOT_PACKET_TYPE || pPacket[3] == HOTKNOT_RECEIVE_PACKET_TYPE)
         {
-            ReportHotKnotCmd(pPacket, nLength); 								   
-            return -1;    //return 0 will run key procedure  
+            ReportHotKnotCmd(pPacket, nLength);
+            return -1;    //return 0 will run key procedure
         }
     }
 #endif //CONFIG_ENABLE_HOTKNOT
@@ -3401,7 +3401,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
 #ifdef CONFIG_TP_HAVE_KEY
     if (pPacket[0] == 0x5A)
     {
-        u8 nButton = pPacket[nLength-2]; //Since the key value is stored in 0th~3th bit of variable "button", we can only retrieve 0th~3th bit of it. 
+        u8 nButton = pPacket[nLength-2]; //Since the key value is stored in 0th~3th bit of variable "button", we can only retrieve 0th~3th bit of it.
 
 //        if (nButton)
         if (nButton != 0xFF)
@@ -3430,7 +3430,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                 }
 
                 DBG(&g_I2cClient->dev, "g_FaceClosingTp = %d\n", g_FaceClosingTp);
-               
+
                 return -1;
             }
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
@@ -3447,7 +3447,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                 {
                     g_FaceClosingTp = 1;
                 }
-                
+
                 DBG(&g_I2cClient->dev, "g_FaceClosingTp = %d\n", g_FaceClosingTp);
 
                 // map and store data to hwm_sensor_data
@@ -3459,10 +3459,10 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                 {
                     DBG(&g_I2cClient->dev, "call hwmsen_get_interrupt_data() failed = %d\n", nErr);
                 }
-                
+
                 return -1;
             }
-#endif               
+#endif
 #endif //CONFIG_ENABLE_PROXIMITY_DETECTION
 
             for (i = 0; i < MAX_KEY_NUM; i ++)
@@ -3510,7 +3510,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                         pInfo->tPoint[0].nId = 0;
 #endif //CONFIG_ENABLE_REPORT_KEY_WITH_COORDINATE
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
-#endif 
+#endif
                     }
                     else
                     {
@@ -3588,7 +3588,7 @@ DBG(&g_I2cClient->dev, "ncheckcounter=%d\n",ncheckcounter);
                             pInfo->tPoint[0].nId = 0;
 #endif //CONFIG_ENABLE_REPORT_KEY_WITH_COORDINATE
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
-#endif 
+#endif
                         }
                         else
                         {
@@ -3653,9 +3653,9 @@ static void _DrvFwCtrlStoreFirmwareData(u8 *pBuf, u32 nSize)
     }
 }
 
-static u16 _DrvFwCtrlMsg21xxaGetSwId(EmemType_e eEmemType) 
+static u16 _DrvFwCtrlMsg21xxaGetSwId(EmemType_e eEmemType)
 {
-    u16 nRetVal = 0; 
+    u16 nRetVal = 0;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[4] = {0};
@@ -3683,7 +3683,7 @@ static u16 _DrvFwCtrlMsg21xxaGetSwId(EmemType_e eEmemType)
 
     // Start MCU
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -3713,23 +3713,23 @@ static u16 _DrvFwCtrlMsg21xxaGetSwId(EmemType_e eEmemType)
 
     if ((szDbBusRxData[0] >= 0x30 && szDbBusRxData[0] <= 0x39)
         &&(szDbBusRxData[1] >= 0x30 && szDbBusRxData[1] <= 0x39)
-        &&(szDbBusRxData[2] >= 0x31 && szDbBusRxData[2] <= 0x39))  
+        &&(szDbBusRxData[2] >= 0x31 && szDbBusRxData[2] <= 0x39))
     {
         nRetVal = (szDbBusRxData[0]-0x30)*100+(szDbBusRxData[1]-0x30)*10+(szDbBusRxData[2]-0x30);
     }
-    
+
     DBG(&g_I2cClient->dev, "SW ID = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;		
-}		
+    return nRetVal;
+}
 
-static u16 _DrvFwCtrlMsg22xxGetSwId(EmemType_e eEmemType) 
+static u16 _DrvFwCtrlMsg22xxGetSwId(EmemType_e eEmemType)
 {
-    u16 nRetVal = 0; 
+    u16 nRetVal = 0;
     u16 nRegData1 = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
@@ -3742,26 +3742,26 @@ static u16 _DrvFwCtrlMsg22xxGetSwId(EmemType_e eEmemType)
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
-    
+    RegSetLByteValue(0x0FE6, 0x01);
+
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #else
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     // Stop watchdog
     RegSet16BitValue(0x3C60, 0xAA55);
 
     // RIU password
-    RegSet16BitValue(0x161A, 0xABBA); 
+    RegSet16BitValue(0x161A, 0xABBA);
 
     if (eEmemType == EMEM_MAIN) // Read SW ID from main block
     {
@@ -3776,43 +3776,43 @@ static u16 _DrvFwCtrlMsg22xxGetSwId(EmemType_e eEmemType)
       Ex. SW ID in Main Block :
           Major low byte at address 0xBFF4
           Major high byte at address 0xBFF5
-          
+
           SW ID in Info Block :
           Major low byte at address 0xC1EC
           Major high byte at address 0xC1ED
     */
-    
+
     // Enable burst mode
 //    RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01));
 
-    RegSetLByteValue(0x160E, 0x01); 
+    RegSetLByteValue(0x160E, 0x01);
 
     nRegData1 = RegGet16BitValue(0x1604);
 //    nRegData2 = RegGet16BitValue(0x1606);
 
     nRetVal = ((nRegData1 >> 8) & 0xFF) << 8;
     nRetVal |= (nRegData1 & 0xFF);
-    
-    // Clear burst mode
-//    RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));      
 
-    RegSet16BitValue(0x1600, 0x0000); 
+    // Clear burst mode
+//    RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
+
+    RegSet16BitValue(0x1600, 0x0000);
 
     // Clear RIU password
-    RegSet16BitValue(0x161A, 0x0000); 
-    
+    RegSet16BitValue(0x161A, 0x0000);
+
     DBG(&g_I2cClient->dev, "SW ID = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;		
+    return nRetVal;
 }
 
 static u16 _DrvFwCtrlMsg26xxmGetSwId(EmemType_e eEmemType)
 {
-    u16 nRetVal = 0; 
+    u16 nRetVal = 0;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[4] = {0};
@@ -3840,7 +3840,7 @@ static u16 _DrvFwCtrlMsg26xxmGetSwId(EmemType_e eEmemType)
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -3870,7 +3870,7 @@ static u16 _DrvFwCtrlMsg26xxmGetSwId(EmemType_e eEmemType)
       Ex. SW ID in Main Block :
           Major low byte at address 0x002A
           Major high byte at address 0x002B
-          
+
           SW ID in Info Block :
           Major low byte at address 0x8004
           Major high byte at address 0x8005
@@ -3878,14 +3878,14 @@ static u16 _DrvFwCtrlMsg26xxmGetSwId(EmemType_e eEmemType)
 
     nRetVal = szDbBusRxData[1];
     nRetVal = (nRetVal << 8) | szDbBusRxData[0];
-    
+
     DBG(&g_I2cClient->dev, "SW ID = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;		
+    return nRetVal;
 }
 
 static s32 _DrvFwCtrlMsg26xxmUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmemType)
@@ -3914,8 +3914,8 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmware(u8 szFwData[][1024], EmemType_e eEme
 
     DBG(&g_I2cClient->dev, "erase 0\n");
 
-    DrvPlatformLyrTouchDeviceResetHw(); 
-    
+    DrvPlatformLyrTouchDeviceResetHw();
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -3939,9 +3939,9 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmware(u8 szFwData[][1024], EmemType_e eEme
     DBG(&g_I2cClient->dev, "erase 2\n");
     // Clear setting
     RegSetLByteValue(0x1618, 0x40); //bank:emem, addr:h000C
-    
+
     mdelay(10);
-    
+
     // Clear pce
     RegSetLByteValue(0x1618, 0x80); //bank:emem, addr:h000C
 
@@ -3959,7 +3959,7 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmware(u8 szFwData[][1024], EmemType_e eEme
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
-    
+
     mdelay(1000);
     DBG(&g_I2cClient->dev, "erase OK\n");
 
@@ -3970,7 +3970,7 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmware(u8 szFwData[][1024], EmemType_e eEme
     DBG(&g_I2cClient->dev, "program 0\n");
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -4123,7 +4123,7 @@ static u32 _DrvFwCtrlMsg28xxCalculateCrc(u8 *pFwData, u32 nOffset, u32 nSize)
    	    nData = (pFwData[nOffset+i]) | (pFwData[nOffset+i+1] << 8) | (pFwData[nOffset+i+2] << 16) | (pFwData[nOffset+i+3] << 24);
    	    nCrc = (nCrc >> 1) ^ (nCrc << 1) ^ (nCrc & nCrcRule) ^ nData;
     }
-    
+
     return nCrc;
 }
 
@@ -4145,27 +4145,27 @@ static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashStart(u16 nStartAddr, u8 *pFirst
 {
     u16 nWriteAddr = nStartAddr/4;
     u8  szDbBusTxData[3] = {0};
-    
+
     DBG(&g_I2cClient->dev, "*** %s() nStartAddr = 0x%x, nBlockSize = %d, nPageNum = %d, eEmemType = %d ***\n", __func__, nStartAddr, nBlockSize, nPageNum, eEmemType);
 
     // Disable cpu read flash
     RegSetLByteValue(0x1608, 0x20);
     RegSetLByteValue(0x1606, 0x20);
-    
+
     // Set e-flash mode to page write mode
     RegSet16BitValue(0x1606, 0x0080);
 
     // Set data align
     RegSetLByteValue(0x1640, 0x01);
-    
-    if (eEmemType == EMEM_INFO) 
+
+    if (eEmemType == EMEM_INFO)
     {
         RegSetLByteValue(0x1607, 0x08);
     }
-    
+
     // Set double buffer
     RegSetLByteValue(0x1604, 0x01);
-        
+
     // Set page write number
     RegSet16BitValue(0x161A, nPageNum);
 
@@ -4183,10 +4183,10 @@ static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashStart(u16 nStartAddr, u8 *pFirst
 
     // Set initial address(for latch PA)
     RegSet16BitValue(0x1600, nWriteAddr);
-    
+
     // Enable burst mode
     RegSetLByteValue(0x1608, 0x21);
-    
+
     szDbBusTxData[0] = 0x10;
     szDbBusTxData[1] = 0x16;
     szDbBusTxData[2] = 0x02;
@@ -4194,9 +4194,9 @@ static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashStart(u16 nStartAddr, u8 *pFirst
 
     szDbBusTxData[0] = 0x20;
 //    szDbBusTxData[1] = 0x00;
-//    szDbBusTxData[2] = 0x00;    
+//    szDbBusTxData[2] = 0x00;
     IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
-}	
+}
 
 static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(u8 *pBufferData, u32 nLength)
 {
@@ -4208,25 +4208,25 @@ static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(u8 *pBufferData, u32 nLe
     szDbBusTxData[0] = 0x10;
     szDbBusTxData[1] = 0x16;
     szDbBusTxData[2] = 0x02;
-        
+
     for (i = 0; i < nLength; i ++)
     {
         szDbBusTxData[3+i] = pBufferData[i];
     }
     IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+nLength);
-}	
+}
 
 static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashEnd(void)
 {
     u8 szDbBusTxData[1] = {0};
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     szDbBusTxData[0] = 0x21;
-    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
     szDbBusTxData[0] = 0x7E;
-    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
     // Clear burst mode
     RegSetLByteValue(0x1608, 0x20);
@@ -4235,27 +4235,27 @@ static void _DrvFwCtrlMsg28xxIspBurstWriteEFlashEnd(void)
 static void _DrvFwCtrlMsg28xxWriteEFlashStart(u16 nStartAddr, u8 *pFirstData, EmemType_e eEmemType)
 {
     u16 nWriteAddr = nStartAddr/4;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() nStartAddr = 0x%x, eEmemType = %d ***\n", __func__, nStartAddr, eEmemType);
 
     // Disable cpu read flash
     RegSetLByteValue(0x1608, 0x20);
     RegSetLByteValue(0x1606, 0x20);
-    
+
     // Set e-flash mode to write mode
     RegSet16BitValue(0x1606, 0x0040);
 
     // Set data align
     RegSetLByteValue(0x1640, 0x01);
-    
-    if (eEmemType == EMEM_INFO) 
+
+    if (eEmemType == EMEM_INFO)
     {
         RegSetLByteValue(0x1607, 0x08);
     }
 
     // Set double buffer
     RegSetLByteValue(0x1604, 0x01);
-        
+
     // Set e-flash mode trigger(Trigger write mode)
     RegSetLByteValue(0x1606, 0x81);
 
@@ -4270,7 +4270,7 @@ static void _DrvFwCtrlMsg28xxWriteEFlashStart(u16 nStartAddr, u8 *pFirstData, Em
 
     // Set initial address(for latch PA)
     RegSet16BitValue(0x1600, nWriteAddr);
-}	
+}
 
 static void _DrvFwCtrlMsg28xxWriteEFlashDoWrite(u16 nStartAddr, u8 *pBufferData)
 {
@@ -4286,12 +4286,12 @@ static void _DrvFwCtrlMsg28xxWriteEFlashDoWrite(u16 nStartAddr, u8 *pBufferData)
 
     // Set address
     RegSet16BitValue(0x1600, nWriteAddr);
-}	
+}
 
 static void _DrvFwCtrlMsg28xxWriteEFlashEnd(void)
 {
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     // Do nothing
 }
 
@@ -4306,7 +4306,7 @@ static void _DrvFwCtrlMsg28xxReadEFlashStart(u16 nStartAddr, EmemType_e eEmemTyp
     RegSetLByteValue(0x1606, 0x02);
 
     RegSet16BitValue(0x1600, nStartAddr);
-    
+
     if (eEmemType == EMEM_MAIN)
     {
         // Set main block
@@ -4320,12 +4320,12 @@ static void _DrvFwCtrlMsg28xxReadEFlashStart(u16 nStartAddr, EmemType_e eEmemTyp
     }
     else if (eEmemType == EMEM_INFO)
     {
-        // Set info block 
+        // Set info block
         RegSetLByteValue(0x1607, 0x08);
-        
+
         // Set info double buffer
         RegSetLByteValue(0x1604, 0x01);
-        
+
         // Set e-flash mode to read mode for info
         RegSet16BitValue(0x1606, 0x0801);
     }
@@ -4334,7 +4334,7 @@ static void _DrvFwCtrlMsg28xxReadEFlashStart(u16 nStartAddr, EmemType_e eEmemTyp
 static void _DrvFwCtrlMsg28xxReadEFlashDoRead(u16 nReadAddr, u8 *pReadData)
 {
     u16 nRegData1 = 0, nRegData2 = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() nReadAddr = 0x%x ***\n", __func__, nReadAddr);
 
     // Set read address
@@ -4348,12 +4348,12 @@ static void _DrvFwCtrlMsg28xxReadEFlashDoRead(u16 nReadAddr, u8 *pReadData)
     pReadData[1] = (nRegData1 >> 8) & 0xFF;
     pReadData[2] = nRegData2 & 0xFF;
     pReadData[3] = (nRegData2 >> 8) & 0xFF;
-}	
+}
 
 static void _DrvFwCtrlMsg28xxReadEFlashEnd(void)
 {
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     // Set read done
     RegSetLByteValue(0x1606, 0x02);
 
@@ -4381,7 +4381,7 @@ static void _DrvFwCtrlMsg28xxGetTpVendorCode(u8 *pTpVendorCode)
         mdelay(100);
 
         // Stop MCU
-        RegSetLByteValue(0x0FE6, 0x01); 
+        RegSetLByteValue(0x0FE6, 0x01);
 
         // Stop watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
@@ -4395,16 +4395,16 @@ static void _DrvFwCtrlMsg28xxGetTpVendorCode(u8 *pTpVendorCode)
         DBG(&g_I2cClient->dev, "szTmpData[1] = 0x%x\n", szTmpData[1]); // add for debug
         DBG(&g_I2cClient->dev, "szTmpData[2] = 0x%x\n", szTmpData[2]); // add for debug
         DBG(&g_I2cClient->dev, "szTmpData[3] = 0x%x\n", szTmpData[3]); // add for debug
-   
+
         _DrvFwCtrlMsg28xxReadEFlashEnd();
 
         pTpVendorCode[0] = szTmpData[1];
         pTpVendorCode[1] = szTmpData[2];
         pTpVendorCode[2] = szTmpData[3];
 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[0] = 0x%x , %c \n", pTpVendorCode[0], pTpVendorCode[0]); 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[1] = 0x%x , %c \n", pTpVendorCode[1], pTpVendorCode[1]); 
-        DBG(&g_I2cClient->dev, "pTpVendorCode[2] = 0x%x , %c \n", pTpVendorCode[2], pTpVendorCode[2]); 
+        DBG(&g_I2cClient->dev, "pTpVendorCode[0] = 0x%x , %c \n", pTpVendorCode[0], pTpVendorCode[0]);
+        DBG(&g_I2cClient->dev, "pTpVendorCode[1] = 0x%x , %c \n", pTpVendorCode[1], pTpVendorCode[1]);
+        DBG(&g_I2cClient->dev, "pTpVendorCode[2] = 0x%x , %c \n", pTpVendorCode[2], pTpVendorCode[2]);
 
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
@@ -4439,11 +4439,11 @@ static void _DrvFwCtrlMsg28xxGetSfrAddr3Value(void)
 static void _DrvFwCtrlMsg28xxUnsetProtectBit(void)
 {
     u8 nB0, nB1, nB2, nB3;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     _DrvFwCtrlMsg28xxGetSfrAddr3Value();
-    
+
     nB0 = _gSFR_ADDR3_BYTE0_1_VALUE & 0xFF;
     nB1 = (_gSFR_ADDR3_BYTE0_1_VALUE & 0xFF00) >> 8;
 
@@ -4525,7 +4525,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
     u32 nInfoAddr = 0x20;
     u32 nTimeOut = 0;
     u8 nRegData = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
 
     DrvPlatformLyrTouchDeviceResetHw();
@@ -4545,7 +4545,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
 
     // Set PROGRAM erase password
     RegSet16BitValue(0x1618, 0x5AA5);
-    
+
     _DrvFwCtrlMsg28xxUnsetProtectBit();
 
     if (eEmemType == EMEM_MAIN) // 128KB
@@ -4569,7 +4569,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
         {
             nRegData = RegGetLByteValue(0x160E);
             nRegData = (nRegData & BIT3);
-            
+
             DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
             if (nRegData == BIT3)
@@ -4578,7 +4578,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
             }
 
             mdelay(10);
-            
+
             if ((nTimeOut ++) > 10)
             {
                 DBG(&g_I2cClient->dev, "Erase main block failed. Timeout.\n");
@@ -4590,7 +4590,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
     else if (eEmemType == EMEM_INFO) // 2KB
     {
         DBG(&g_I2cClient->dev, "Erase info block\n");
-        
+
         // Set info block
         RegSetLByteValue(0x1607, 0x08);
 
@@ -4602,7 +4602,7 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
 
         // Set page erase info
         RegSetLByteValue(0x1607, 0x09);
-        
+
         for (nInfoAddr = 0x20; nInfoAddr <= MSG28XX_EMEM_INFO_MAX_ADDR; nInfoAddr += 0x20)
         {
             DBG(&g_I2cClient->dev, "nInfoAddr = 0x%x\n", nInfoAddr); // add for debug
@@ -4620,14 +4620,14 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
                 nRegData = (nRegData & BIT3);
 
                 DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
-            
+
                 if (nRegData == BIT3)
                 {
                     break;
                 }
 
                 mdelay(10);
-            
+
                 if ((nTimeOut ++) > 10)
                 {
                     DBG(&g_I2cClient->dev, "Erase info block failed. Timeout.\n");
@@ -4637,25 +4637,25 @@ static void _DrvFwCtrlMsg28xxEraseEmem(EmemType_e eEmemType)
 
                     goto EraseEnd;
                 }
-            }        	
+            }
         }
 
         // Set main block
         RegSetLByteValue(0x1607, 0x00);
     }
-    
+
     EraseEnd:
-    
+
     _DrvFwCtrlMsg28xxSetProtectBit();
 
     RegSetLByteValue(0x1606, 0x00);
     RegSetLByteValue(0x1607, 0x00);
-		
+
     // Clear PROGRAM erase password
     RegSet16BitValue(0x1618, 0xA55A);
 
     DBG(&g_I2cClient->dev, "Erase end\n");
-    
+
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
@@ -4695,15 +4695,15 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
     DBG(&g_I2cClient->dev, "Program start\n");
 
     _DrvFwCtrlMsg28xxAccessEFlashInit();
-    
+
     // Stop mcu
-    RegSetLByteValue(0x0FE6, 0x01); 
-    
+    RegSetLByteValue(0x0FE6, 0x01);
+
     // Set PROGRAM erase password
     RegSet16BitValue(0x1618, 0x5AA5);
 
     _DrvFwCtrlMsg28xxUnsetProtectBit();
-    
+
     if (eEmemType == EMEM_MAIN) // Program main block
     {
         DBG(&g_I2cClient->dev, "Program main block\n");
@@ -4715,7 +4715,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
         RegSet16BitValueOn(0x1EBE, BIT15);
 
         RegSetLByteValue(0x1604, 0x01);
-        
+
         RegSet16BitValue(0x161A, nPageNum);
         RegSet16BitValue(0x1600, 0x0000); // Set initial address
         RegSet16BitValueOn(0x3C00, BIT0); // Disable INT GPIO mode
@@ -4723,19 +4723,19 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
         RegSet16BitValue(0x1E34, 0x0000); // Set DQMem start address
 
         _DrvFwCtrlReadReadDQMemStart();
-        
+
         szWriteData[0] = 0x10;
         szWriteData[1] = 0x00;
         szWriteData[2] = 0x00;
-        
+
         nLength = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*2; //128*2=256
-        
+
         for (j = 0; j < nLength; j ++)
         {
             szWriteData[3+j] = g_FwData[0][j];
         }
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength); // Write the first two pages(page 0 & page 1)
-        
+
         _DrvFwCtrlReadReadDQMemEnd();
 
         RegSet16BitValueOn(0x1EBE, BIT15); // Set ISP mode
@@ -4748,7 +4748,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
 
         nLength = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE; //128
 
-        for (i = 2; i < nPageNum; i ++) 
+        for (i = 2; i < nPageNum; i ++)
         {
             if (i == 2)
             {
@@ -4761,7 +4761,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                     szWriteData[3+j] = g_FwData[i/8][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*(i-(8*(i/8)))+j];
                 }
 
-                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength); 
+                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength);
             }
             else if (i == (nPageNum - 1))
             {
@@ -4779,8 +4779,8 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                 szWriteData[3+130] = 0xFF;
                 szWriteData[3+131] = 0xFF;
 
-                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength+4); 
-            }           
+                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength+4);
+            }
             else
             {
 //                szWriteData[0] = 0x10;
@@ -4799,7 +4799,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                     szWriteData[3+j] = g_FwData[i/8][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*(i-(8*(i/8)))+j];
                 }
 
-                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength); 
+                IicWriteData(SLAVE_I2C_ID_DBBUS, &szWriteData[0], 3+nLength);
             }
         }
 
@@ -4808,16 +4808,16 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
 #else
 
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME)
-        nPageNum = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024) / 8; // 128*1024/8=16384 
+        nPageNum = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024) / 8; // 128*1024/8=16384
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
-        nPageNum = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024) / 32; // 128*1024/32=4096 
+        nPageNum = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024) / 32; // 128*1024/32=4096
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
         nPageNum = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024) / MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE; // 128*1024/128=1024
-#endif 
-     
+#endif
+
         nIndex = 0;
-        
-        for (i = 0; i < nPageNum; i ++) 
+
+        for (i = 0; i < nPageNum; i ++)
         {
             if (i == 0)
             {
@@ -4828,15 +4828,15 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                 szFirstData[1] = g_FwData[0][1];
                 szFirstData[2] = g_FwData[0][2];
                 szFirstData[3] = g_FwData[0][3];
-            
+
                 _DrvFwCtrlMsg28xxIspBurstWriteEFlashStart(nIndex, &szFirstData[0], MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE*1024, nPageNum, EMEM_MAIN);
 
                 nIndex += nLength;
-            
+
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME)
-                nLength = 8 - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 4 = 8 - 4 
+                nLength = 8 - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 4 = 8 - 4
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
-                nLength = 32 - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 28 = 32 - 4 
+                nLength = 32 - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 28 = 32 - 4
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
                 nLength = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 124 = 128 - 4
 #endif
@@ -4849,19 +4849,19 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
             else
             {
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME)
-                nLength = 8; 
+                nLength = 8;
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
-                nLength = 32; 
+                nLength = 32;
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
                 nLength = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE; // 128
-#endif 
+#endif
 
                 for (j = 0; j < nLength; j ++)
                 {
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME)
-                    szBufferData[j] = g_FwData[i/128][8*(i-(128*(i/128)))+j]; 
+                    szBufferData[j] = g_FwData[i/128][8*(i-(128*(i/128)))+j];
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
-                    szBufferData[j] = g_FwData[i/32][32*(i-(32*(i/32)))+j]; 
+                    szBufferData[j] = g_FwData[i/32][32*(i-(32*(i/32)))+j];
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
                     szBufferData[j] = g_FwData[i/8][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*(i-(8*(i/8)))+j];
 #endif
@@ -4869,9 +4869,9 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
             }
 
             _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], nLength);
-            
+
             udelay(2000); // delay about 2ms
-        
+
             nIndex += nLength;
         }
 
@@ -4883,13 +4883,13 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
         // Check RBB
         nRegData = RegGetLByteValue(0x160E);
         nRetryTime = 0;
-    
+
         while ((nRegData & BIT3) != BIT3)
         {
             mdelay(10);
 
             nRegData = RegGetLByteValue(0x160E);
-    
+
             if (nRetryTime ++ > 100)
             {
                 DBG(&g_I2cClient->dev, "main block can't wait write to done.\n");
@@ -4915,16 +4915,16 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
             {
                 // Read first data 4 bytes
                 nLength = MSG28XX_EMEM_SIZE_BYTES_ONE_WORD;
-            
+
                 szFirstData[0] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE];
                 szFirstData[1] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+1];
                 szFirstData[2] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+2];
                 szFirstData[3] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+3];
-            
+
                 _DrvFwCtrlMsg28xxIspBurstWriteEFlashStart(nIndex, &szFirstData[0], MSG28XX_FIRMWARE_INFO_BLOCK_SIZE*1024, nPageNum-1, EMEM_INFO);
-            
+
                 nIndex += nLength;
-            
+
                 nLength = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE - MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 124 = 128 - 4
 
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME)
@@ -4934,10 +4934,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                     {
                         szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+4+(8*j)+k];
                     }
-                    
+
                     _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 8);
 
-                    udelay(2000); // delay about 2ms 
+                    udelay(2000); // delay about 2ms
                 }
 
                 for (k = 0; k < (nLength%8); k ++) // 124%8 = 4
@@ -4947,7 +4947,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
 
                 _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], (nLength%8)); // 124%8 = 4
 
-                udelay(2000); // delay about 2ms 
+                udelay(2000); // delay about 2ms
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
                 for (j = 0; j < (nLength/32); j ++) // 124/8 = 3
                 {
@@ -4955,10 +4955,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                     {
                         szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+4+(32*j)+k];
                     }
-                    
+
                     _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 32);
 
-                    udelay(2000); // delay about 2ms 
+                    udelay(2000); // delay about 2ms
                 }
 
                 for (k = 0; k < (nLength%32); k ++) // 124%32 = 28
@@ -4968,7 +4968,7 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
 
                 _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], (nLength%32)); // 124%8 = 28
 
-                udelay(2000); // delay about 2ms 
+                udelay(2000); // delay about 2ms
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
                 for (j = 0; j < nLength; j ++)
                 {
@@ -4989,10 +4989,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                         {
                             szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*i+(8*j)+k];
                         }
-                    
+
                         _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 8);
 
-                        udelay(2000); // delay about 2ms 
+                        udelay(2000); // delay about 2ms
                     }
                 }
                 else // i >= 8
@@ -5003,10 +5003,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                         {
                             szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE+1][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*(i-8)+(8*j)+k];
                         }
-                    
+
                         _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 8);
 
-                        udelay(2000); // delay about 2ms 
+                        udelay(2000); // delay about 2ms
                     }
                 }
 #elif defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
@@ -5018,10 +5018,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                         {
                             szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*i+(32*j)+k];
                         }
-                    
+
                         _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 32);
 
-                        udelay(2000); // delay about 2ms 
+                        udelay(2000); // delay about 2ms
                     }
                 }
                 else // i >= 8
@@ -5032,10 +5032,10 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                         {
                             szBufferData[k] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE+1][MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE*(i-8)+(32*j)+k];
                         }
-                    
+
                         _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], 32);
 
-                        udelay(2000); // delay about 2ms 
+                        udelay(2000); // delay about 2ms
                     }
                 }
 #else // UPDATE FIRMWARE WITH 128 BYTE EACH TIME
@@ -5055,32 +5055,32 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                 }
 #endif
             }
-        
+
 #if defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_8_BYTE_EACH_TIME) || defined(CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_32_BYTE_EACH_TIME)
             // Do nothing here
 #else
             _DrvFwCtrlMsg28xxIspBurstWriteEFlashDoWrite(&szBufferData[0], nLength);
 
-            udelay(2000); // delay about 2ms 
-#endif        
+            udelay(2000); // delay about 2ms
+#endif
             nIndex += nLength;
         }
 
         _DrvFwCtrlMsg28xxIspBurstWriteEFlashEnd();
-    
+
         // Set write done
         RegSet16BitValueOn(0x1606, BIT2);
-            
+
         // Check RBB
         nRegData = RegGetLByteValue(0x160E);
         nRetryTime = 0;
-    
+
         while ((nRegData & BIT3) != BIT3)
         {
             mdelay(10);
 
             nRegData = RegGetLByteValue(0x160E);
-    
+
             if (nRetryTime ++ > 100)
             {
                 DBG(&g_I2cClient->dev, "Info block page 1~14 can't wait write to done.\n");
@@ -5089,14 +5089,14 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
             }
         }
 
-        RegSet16BitValueOff(0x1EBE, BIT15); 
+        RegSet16BitValueOff(0x1EBE, BIT15);
 
         // Update page 15 by write mode
         nIndex = 15 * MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE;
         nWordNum = MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE / MSG28XX_EMEM_SIZE_BYTES_ONE_WORD; // 128/4=32
         nLength = MSG28XX_EMEM_SIZE_BYTES_ONE_WORD;
 
-        for (i = 0; i < nWordNum; i ++) 
+        for (i = 0; i < nWordNum; i ++)
         {
             if (i == 0)
             {
@@ -5114,40 +5114,40 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
                     szFirstData[j] = g_FwData[MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE+1][7*MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE+(4*i)+j];
                 }
 
-                _DrvFwCtrlMsg28xxWriteEFlashDoWrite(nIndex, &szFirstData[0]);            			
+                _DrvFwCtrlMsg28xxWriteEFlashDoWrite(nIndex, &szFirstData[0]);
             }
 
-            udelay(2000); // delay about 2ms 
+            udelay(2000); // delay about 2ms
 
             nIndex += nLength;
         }
-        
+
         _DrvFwCtrlMsg28xxWriteEFlashEnd();
 
         // Set write done
         RegSet16BitValueOn(0x1606, BIT2);
-            
+
         // Check RBB
         nRegData = RegGetLByteValue(0x160E);
         nRetryTime = 0;
-    
+
         while ((nRegData & BIT3) != BIT3)
         {
             mdelay(10);
 
             nRegData = RegGetLByteValue(0x160E);
-    
+
             if (nRetryTime ++ > 100)
             {
                 DBG(&g_I2cClient->dev, "Info block page 15 can't wait write to done.\n");
-                
+
                 goto ProgramEnd;
             }
         }
     }
 
     ProgramEnd:
-    
+
     _DrvFwCtrlMsg28xxSetProtectBit();
 
     // Clear PROGRAM erase password
@@ -5160,9 +5160,9 @@ static void _DrvFwCtrlMsg28xxProgramEmem(EmemType_e eEmemType)
     DbBusExitSerialDebugMode();
 }
 
-static u16 _DrvFwCtrlMsg28xxGetSwId(EmemType_e eEmemType) 
+static u16 _DrvFwCtrlMsg28xxGetSwId(EmemType_e eEmemType)
 {
-    u16 nRetVal = 0; 
+    u16 nRetVal = 0;
     u16 nReadAddr = 0;
     u8  szTmpData[4] = {0};
 
@@ -5175,14 +5175,14 @@ static u16 _DrvFwCtrlMsg28xxGetSwId(EmemType_e eEmemType)
     mdelay(100);
 
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 
     // Stop watchdog
     RegSet16BitValue(0x3C60, 0xAA55);
 
     if (eEmemType == EMEM_MAIN) // Read SW ID from main block
     {
-        _DrvFwCtrlMsg28xxReadEFlashStart(0x7FFD, EMEM_MAIN); 
+        _DrvFwCtrlMsg28xxReadEFlashStart(0x7FFD, EMEM_MAIN);
         nReadAddr = 0x7FFD;
     }
     else if (eEmemType == EMEM_INFO) // Read SW ID from info block
@@ -5198,26 +5198,26 @@ static u16 _DrvFwCtrlMsg28xxGetSwId(EmemType_e eEmemType)
     /*
       Ex. SW ID in Main Block :
           Major low byte at address 0x7FFD
-          
+
           SW ID in Info Block :
           Major low byte at address 0x81FB
     */
 
     nRetVal = (szTmpData[1] << 8);
     nRetVal |= szTmpData[0];
-    
+
     DBG(&g_I2cClient->dev, "SW ID = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;		
+    return nRetVal;
 }
 
-static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u32 nRetryTime = 0;
     u32 nCrcEndAddr = 0;
     u16 nCrcDown = 0;
@@ -5239,10 +5239,10 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
         // Disable cpu read flash
         RegSetLByteValue(0x1608, 0x20);
         RegSetLByteValue(0x1606, 0x20);
-        
+
         // Set read flag
         RegSet16BitValue(0x1610, 0x0001);
-    		
+
         // Mode reset main block
         RegSet16BitValue(0x1606, 0x0000);
 
@@ -5250,19 +5250,19 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
         RegSet16BitValue(0x1620, 0x0002);
 
         RegSet16BitValue(0x1620, 0x0000);
-        
+
         // Set CRC e-flash block start address => Main Block : 0x0000 ~ 0x7FFE
         RegSet16BitValue(0x1600, 0x0000);
-        
+
         nCrcEndAddr = (MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE*1024)/4-2;
 
         RegSet16BitValue(0x1622, nCrcEndAddr);
-        
+
         // Trigger CRC check
         RegSet16BitValue(0x1620, 0x0001);
-        
+
         nCrcDown = RegGet16BitValue(0x1620);
-        
+
         nRetryTime = 0;
         while ((nCrcDown >> 15) == 0)
         {
@@ -5270,14 +5270,14 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
 
             nCrcDown = RegGet16BitValue(0x1620);
             nRetryTime ++;
-            
+
             if (nRetryTime > 30)
             {
                 DBG(&g_I2cClient->dev, "Wait main block nCrcDown failed.\n");
                 break;
             }
         }
-        
+
         nRetVal = RegGet16BitValue(0x1626);
         nRetVal = (nRetVal << 16) | RegGet16BitValue(0x1624);
     }
@@ -5286,10 +5286,10 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
         // Disable cpu read flash
         RegSetLByteValue(0x1608, 0x20);
         RegSetLByteValue(0x1606, 0x20);
-        
+
         // Set read flag
         RegSet16BitValue(0x1610, 0x0001);
-    		
+
         // Mode reset info block
         RegSet16BitValue(0x1606, 0x0800);
 
@@ -5299,16 +5299,16 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
         RegSet16BitValue(0x1620, 0x0002);
 
         RegSet16BitValue(0x1620, 0x0000);
-        
+
         // Set CRC e-flash block start address => Info Block : 0x0020 ~ 0x01FE
         RegSet16BitValue(0x1600, 0x0020);
         RegSet16BitValue(0x1622, 0x01FE);
 
         // Trigger CRC check
         RegSet16BitValue(0x1620, 0x0001);
-        
+
         nCrcDown = RegGet16BitValue(0x1620);
-        
+
         nRetryTime = 0;
         while ((nCrcDown >> 15) == 0)
         {
@@ -5316,14 +5316,14 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
 
             nCrcDown = RegGet16BitValue(0x1620);
             nRetryTime ++;
-            
+
             if (nRetryTime > 30)
             {
                 DBG(&g_I2cClient->dev, "Wait info block nCrcDown failed.\n");
                 break;
             }
         }
-        
+
         nRetVal = RegGet16BitValue(0x1626);
         nRetVal = (nRetVal << 16) | RegGet16BitValue(0x1624);
     }
@@ -5334,12 +5334,12 @@ static u32 _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EmemType_e eEmemType)
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
-static u32 _DrvFwCtrlMsg28xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg28xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nReadAddr = 0;
     u8  szTmpData[4] = {0};
 
@@ -5352,7 +5352,7 @@ static u32 _DrvFwCtrlMsg28xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
     mdelay(100);
 
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 
     // Stop watchdog
     RegSet16BitValue(0x3C60, 0xAA55);
@@ -5374,39 +5374,39 @@ static u32 _DrvFwCtrlMsg28xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
     DBG(&g_I2cClient->dev, "szTmpData[1] = 0x%x\n", szTmpData[1]); // add for debug
     DBG(&g_I2cClient->dev, "szTmpData[2] = 0x%x\n", szTmpData[2]); // add for debug
     DBG(&g_I2cClient->dev, "szTmpData[3] = 0x%x\n", szTmpData[3]); // add for debug
-   
+
     _DrvFwCtrlMsg28xxReadEFlashEnd();
 
     nRetVal = (szTmpData[3] << 24);
     nRetVal |= (szTmpData[2] << 16);
     nRetVal |= (szTmpData[1] << 8);
     nRetVal |= szTmpData[0];
-    
+
     DBG(&g_I2cClient->dev, "CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
-static u32 _DrvFwCtrlMsg28xxRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[][1024], EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg28xxRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[][1024], EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
-    
+    u32 nRetVal = 0;
+
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
-    
+
     if (szTmpBuf != NULL)
     {
-        if (eEmemType == EMEM_MAIN) 
+        if (eEmemType == EMEM_MAIN)
         {
             nRetVal = szTmpBuf[127][1023];
             nRetVal = (nRetVal << 8) | szTmpBuf[127][1022];
             nRetVal = (nRetVal << 8) | szTmpBuf[127][1021];
             nRetVal = (nRetVal << 8) | szTmpBuf[127][1020];
         }
-        else if (eEmemType == EMEM_INFO) 
+        else if (eEmemType == EMEM_INFO)
         {
             nRetVal = szTmpBuf[129][1023];
             nRetVal = (nRetVal << 8) | szTmpBuf[129][1022];
@@ -5425,9 +5425,9 @@ static s32 _DrvFwCtrlMsg28xxCheckFirmwareBinIntegrity(u8 szFwData[][1024])
     u32 nRetVal = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-	
+
     _DrvFwCtrlMsg28xxConvertFwDataTwoDimenToOneDimen(szFwData, _gOneDimenFwData);
-    
+
     /* Calculate main block CRC & info block CRC by device driver itself */
     nCrcMain = _DrvFwCtrlMsg28xxCalculateCrc(_gOneDimenFwData, 0, MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE*1024-MSG28XX_EMEM_SIZE_BYTES_ONE_WORD);
     nCrcInfo = _DrvFwCtrlMsg28xxCalculateCrc(_gOneDimenFwData, MSG28XX_FIRMWARE_MAIN_BLOCK_SIZE*1024+MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE, MSG28XX_FIRMWARE_INFO_BLOCK_SIZE*1024-MSG28XX_EMEM_SIZE_BYTES_PER_ONE_PAGE-MSG28XX_EMEM_SIZE_BYTES_ONE_WORD);
@@ -5442,9 +5442,9 @@ static s32 _DrvFwCtrlMsg28xxCheckFirmwareBinIntegrity(u8 szFwData[][1024])
     if ((nCrcMainBin != nCrcMain) || (nCrcInfoBin != nCrcInfo))
     {
         DBG(&g_I2cClient->dev, "CHECK FIRMWARE BIN FILE INTEGRITY FAILED. CANCEL UPDATE FIRMWARE.\n");
-      
+
         nRetVal = -1;
-    } 
+    }
     else
     {
         DBG(&g_I2cClient->dev, "CHECK FIRMWARE BIN FILE INTEGRITY SUCCESS. PROCEED UPDATE FIRMWARE.\n");
@@ -5466,15 +5466,15 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     {
         DBG(&g_I2cClient->dev, "CHECK FIRMWARE BIN FILE INTEGRITY FAILED. CANCEL UPDATE FIRMWARE.\n");
 
-        g_FwDataCount = 0; // Reset g_FwDataCount to 0 
+        g_FwDataCount = 0; // Reset g_FwDataCount to 0
 
         DrvPlatformLyrTouchDeviceResetHw();
 
-        return -1;	
+        return -1;
     }
 
     g_IsUpdateFirmware = 0x01; // Set flag to 0x01 for indicating update firmware is processing
-    
+
     /////////////////////////
     // Erase
     /////////////////////////
@@ -5512,12 +5512,12 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     {
         _DrvFwCtrlMsg28xxProgramEmem(EMEM_INFO);
     }
-    
+
     DBG(&g_I2cClient->dev, "program OK\n");
 
     /* Calculate main block CRC & info block CRC by device driver itself */
     _DrvFwCtrlMsg28xxConvertFwDataTwoDimenToOneDimen(szFwData, _gOneDimenFwData);
-    
+
     /* Read main block CRC & info block CRC from TP */
     if (eEmemType == EMEM_ALL)
     {
@@ -5558,27 +5558,27 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
         if ((nCrcMainHardware != nCrcMain) || (nCrcInfoHardware != nCrcInfo) || (nCrcMainEflash != nCrcMain) || (nCrcInfoEflash != nCrcInfo))
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
     else if (eEmemType == EMEM_MAIN)
     {
         if ((nCrcMainHardware != nCrcMain) || (nCrcMainEflash != nCrcMain))
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
     else if (eEmemType == EMEM_INFO)
     {
         if ((nCrcInfoHardware != nCrcInfo) || (nCrcInfoEflash != nCrcInfo))
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
 
     DBG(&g_I2cClient->dev, "Update SUCCESS\n");
@@ -5591,7 +5591,7 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     DBG(&g_I2cClient->dev, "g_ChipType = 0x%x\n", g_ChipType);
-    
+
     if (g_ChipType == CHIP_TYPE_MSG21XXA) // (0x02)
     {
         u8 nChipVersion = 0;
@@ -5604,23 +5604,23 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
         DbBusIICUseBus();
         DbBusIICReshape();
         mdelay(100);
-    
+
         // Stop MCU
         RegSetLByteValue(0x0FE6, 0x01);
 
         // Disable watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
-    
+
         /////////////////////////
         // Difference between C2 and C3
         /////////////////////////
         // c2:MSG2133(1) c32:MSG2133A(2) c33:MSG2138A(2)
-            
+
         // check ic version
         nChipVersion = RegGet16BitValue(0x3CEA) & 0xFF;
 
         DBG(&g_I2cClient->dev, "chip version = 0x%x\n", nChipVersion);
-        
+
         if (nChipVersion == 3)
         {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_SW_ID
@@ -5628,12 +5628,12 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
             return _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(szFwData, EMEM_MAIN);
 #else
             g_FwDataCount = 0; // Reset g_FwDataCount to 0
-            
+
             return -1;
-#endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA            
+#endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
 #else
             return _DrvFwCtrlUpdateFirmwareC33(szFwData, EMEM_MAIN);
-#endif //CONFIG_UPDATE_FIRMWARE_BY_SW_ID   
+#endif //CONFIG_UPDATE_FIRMWARE_BY_SW_ID
         }
         else
         {
@@ -5642,18 +5642,18 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
             return _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(szFwData, EMEM_MAIN);
 #else
             g_FwDataCount = 0; // Reset g_FwDataCount to 0
-            
+
             return -1;
-#endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA            
+#endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
 #else
             return _DrvFwCtrlUpdateFirmwareC32(szFwData, EMEM_ALL);
-#endif //CONFIG_UPDATE_FIRMWARE_BY_SW_ID        
+#endif //CONFIG_UPDATE_FIRMWARE_BY_SW_ID
         }
     }
     else if (g_ChipType == CHIP_TYPE_MSG22XX) // (0x7A)
     {
         _DrvFwCtrlMsg22xxGetTpVendorCode(_gTpVendorCode);
-        
+
         if (_gTpVendorCode[0] == 'C' && _gTpVendorCode[1] == 'N' && _gTpVendorCode[2] == 'T') // for specific TP vendor which store some important information in info block, only update firmware for main block, do not update firmware for info block.
         {
             return _DrvFwCtrlMsg22xxUpdateFirmware(szFwData, EMEM_MAIN);
@@ -5684,11 +5684,11 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
             eSwId = _DrvFwCtrlMsg28xxGetSwId(EMEM_INFO);
 
             DBG(&g_I2cClient->dev, "eVendorId = 0x%x, eSwId = 0x%x\n", eVendorId, eSwId);
-    		
+
             // Check if the vendor id of the update firmware bin file is equal to the vendor id on e-flash. YES => allow update, NO => not allow update
             if (eSwId != eVendorId)
             {
-                DrvPlatformLyrTouchDeviceResetHw(); // Reset HW here to avoid touch may be not worked after get sw id. 
+                DrvPlatformLyrTouchDeviceResetHw(); // Reset HW here to avoid touch may be not worked after get sw id.
 
                 DBG(&g_I2cClient->dev, "The vendor id of the update firmware bin file is different from the vendor id on e-flash. Not allow to update.\n");
                 g_FwDataCount = 0; // Reset g_FwDataCount to 0
@@ -5701,13 +5701,13 @@ static s32 _DrvFwCtrlUpdateFirmwareCash(u8 szFwData[][1024], EmemType_e eEmemTyp
             }
         }
     }
-    else 
+    else
     {
         DBG(&g_I2cClient->dev, "Undefined chip type.\n");
         g_FwDataCount = 0; // Reset g_FwDataCount to 0
 
         return -1;
-    }	
+    }
 }
 
 static s32 _DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
@@ -5720,7 +5720,7 @@ static s32 _DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
     loff_t pos;
     u16 eSwId = 0x0000;
     u16 eVendorId = 0x0000;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     pfile = filp_open(pFilePath, O_RDONLY, 0);
@@ -5746,33 +5746,33 @@ static s32 _DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
 
     old_fs = get_fs();
     set_fs(KERNEL_DS);
-  
+
     pos = 0;
     vfs_read(pfile, _gFwDataBuf, fsize, &pos);
-  
+
     filp_close(pfile, NULL);
     set_fs(old_fs);
 
     _DrvFwCtrlStoreFirmwareData(_gFwDataBuf, fsize);
 
     DrvPlatformLyrDisableFingerTouchReport();
-    
-    if (g_ChipType == CHIP_TYPE_MSG21XXA)    
+
+    if (g_ChipType == CHIP_TYPE_MSG21XXA)
     {
         eVendorId = g_FwData[31][0x34F] <<8 | g_FwData[31][0x34E];
         eSwId = _DrvFwCtrlMsg21xxaGetSwId(EMEM_MAIN);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG22XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG22XX)
     {
         eVendorId = g_FwData[47][1013] <<8 | g_FwData[47][1012];
         eSwId = _DrvFwCtrlMsg22xxGetSwId(EMEM_MAIN);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG26XXM)    
+    else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         eVendorId = g_FwData[0][0x2B] <<8 | g_FwData[0][0x2A];
         eSwId = _DrvFwCtrlMsg26xxmGetSwId(EMEM_MAIN);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
         eVendorId = g_FwData[129][1005] << 8 | g_FwData[129][1004]; // Retrieve major from info block
         eSwId = _DrvFwCtrlMsg28xxGetSwId(EMEM_INFO);
@@ -5780,7 +5780,7 @@ static s32 _DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
 
     DBG(&g_I2cClient->dev, "eVendorId = 0x%x, eSwId = 0x%x\n", eVendorId, eSwId);
     DBG(&g_I2cClient->dev, "IS_FORCE_TO_UPDATE_FIRMWARE_ENABLED = %d\n", IS_FORCE_TO_UPDATE_FIRMWARE_ENABLED);
-    		
+
     if ((eSwId == eVendorId) || (IS_FORCE_TO_UPDATE_FIRMWARE_ENABLED))
     {
         if ((g_ChipType == CHIP_TYPE_MSG21XXA && fsize == 33792/* 33KB */) || (g_ChipType == CHIP_TYPE_MSG22XX && fsize == 49664/* 48.5KB */) || (g_ChipType == CHIP_TYPE_MSG26XXM && fsize == 40960/* 40KB */))
@@ -5799,16 +5799,16 @@ static s32 _DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
             nRetVal = -1;
         }
     }
-    else 
+    else
     {
         DrvPlatformLyrTouchDeviceResetHw();
 
         DBG(&g_I2cClient->dev, "The vendor id of the update firmware bin file is different from the vendor id on e-flash. Not allow to update.\n");
         nRetVal = -1;
     }
- 
+
     g_FwDataCount = 0; // Reset g_FwDataCount to 0 after update firmware
-    
+
     DrvPlatformLyrEnableFingerTouchReport();
 
     return nRetVal;
@@ -5856,7 +5856,7 @@ void DrvFwCtrlOpenGestureWakeup(u32 *pMode)
     szDbBusTxData[1] = 0x01;
     szDbBusTxData[2] = ((pMode[1] & 0x0000FF00) >> 8);
     szDbBusTxData[3] = ((pMode[1] & 0x000000FF) >> 0);
-	
+
     while (i < 5)
     {
         mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE); // delay 20ms
@@ -5878,7 +5878,7 @@ void DrvFwCtrlOpenGestureWakeup(u32 *pMode)
     szDbBusTxData[1] = 0x02;
     szDbBusTxData[2] = ((pMode[0] & 0xFF000000) >> 24);
     szDbBusTxData[3] = ((pMode[0] & 0x00FF0000) >> 16);
-    
+
     while (i < 5)
     {
         mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE); // delay 20ms
@@ -5900,7 +5900,7 @@ void DrvFwCtrlOpenGestureWakeup(u32 *pMode)
     szDbBusTxData[1] = 0x03;
     szDbBusTxData[2] = ((pMode[0] & 0x0000FF00) >> 8);
     szDbBusTxData[3] = ((pMode[0] & 0x000000FF) >> 0);
-    
+
     while (i < 5)
     {
         mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE); // delay 20ms
@@ -5921,7 +5921,7 @@ void DrvFwCtrlOpenGestureWakeup(u32 *pMode)
     g_GestureWakeupFlag = 1; // gesture wakeup is enabled
 
 #else
-	
+
     szDbBusTxData[0] = 0x58;
     szDbBusTxData[1] = ((pMode[0] & 0x0000FF00) >> 8);
     szDbBusTxData[2] = ((pMode[0] & 0x000000FF) >> 0);
@@ -6121,7 +6121,7 @@ u32 DrvFwCtrlReadDQMemValue(u16 nAddr)
 
         // Start mcu
         RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
         DbBusExitSerialDebugMode();
@@ -6133,8 +6133,8 @@ u32 DrvFwCtrlReadDQMemValue(u16 nAddr)
         DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
         // TODO : not support yet
-    
-        return 0;	
+
+        return 0;
     }
 }
 
@@ -6152,13 +6152,13 @@ void DrvFwCtrlWriteDQMemValue(u16 nAddr, u32 nData)
         DbBusStopMCU();
         DbBusIICUseBus();
         DbBusIICReshape();
-    
+
         // Stop mcu
         RegSetLByteValue(0x0FE6, 0x01); //bank:mheg5, addr:h0073
         mdelay(100);
 
         _DrvFwCtrlReadReadDQMemStart();
-    
+
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = ((nAddr >> 8) & 0xff);
         szDbBusTxData[2] = (nAddr & 0xff);
@@ -6201,7 +6201,7 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
     u32 nTimeOut = 0;
     u16 nRegData = 0;
     u16 nTrimByte1 = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
 
     DbBusEnterSerialDebugMode();
@@ -6212,21 +6212,21 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
     DBG(&g_I2cClient->dev, "Erase start\n");
 
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
-    
+    RegSetLByteValue(0x0FE6, 0x01);
+
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     nTrimByte1 = _DrvFwCtrlMsg22xxGetTrimByte1();
-    
+
     _DrvFwCtrlMsg22xxChangeVoltage();
 
     // Disable watchdog
@@ -6243,7 +6243,7 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
     }
     else
     {
-        nMaxEraseTimes = 1;	
+        nMaxEraseTimes = 1;
     }
 
     for (nEraseCount = 0; nEraseCount < nMaxEraseTimes; nEraseCount ++)
@@ -6265,12 +6265,12 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
             {
                 nRegData = RegGet16BitValue(0x1610); // Memory status
                 nRegData = nRegData & BIT1;
-            
+
                 DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                 if (nRegData == BIT1)
                 {
-                    break;		
+                    break;
                 }
 
                 mdelay(50);
@@ -6295,7 +6295,7 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
                 // Clear pce
                 RegSetLByteValue(0x1618, 0x80);
                 mdelay(10);
- 
+
                 if (i == 0)
                 {
                     RegSet16BitValue(0x1600, 0x0000);
@@ -6321,12 +6321,12 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
                 {
                     nRegData = RegGet16BitValue(0x1610); // Memory status
                     nRegData = nRegData & BIT1;
-            
+
                     DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                     if (nRegData == BIT1)
                     {
-                        break;		
+                        break;
                     }
                     mdelay(50);
 
@@ -6340,7 +6340,7 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
                         }
                     }
                 }
-            }   
+            }
         }
         else if (eEmemType == EMEM_INFO) // 512Byte
         {
@@ -6351,7 +6351,7 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
             mdelay(10);
 
             RegSet16BitValue(0x1600, 0xC000);
-        
+
             // Sector erase
             RegSet16BitValue(0x160E, (RegGet16BitValue(0x160E) | BIT2));
 
@@ -6361,12 +6361,12 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
             {
                 nRegData = RegGet16BitValue(0x1610); // Memory status
                 nRegData = nRegData & BIT1;
-            
+
                 DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                 if (nRegData == BIT1)
                 {
-                    break;		
+                    break;
                 }
                 mdelay(50);
 
@@ -6382,11 +6382,11 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
             }
         }
     }
-    
+
     _DrvFwCtrlMsg22xxRestoreVoltage();
 
     EraseEnd:
-    
+
     DBG(&g_I2cClient->dev, "Erase end\n");
 
     DbBusIICNotUseBus();
@@ -6394,9 +6394,9 @@ static void _DrvFwCtrlMsg22xxEraseEmem(EmemType_e eEmemType)
     DbBusExitSerialDebugMode();
 }
 
-static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType) 
+static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
 {
-    u32 i, j; 
+    u32 i, j;
     u32 nRemainSize = 0, nBlockSize = 0, nSize = 0, index = 0;
     u32 nTimeOut = 0;
     u16 nRegData = 0;
@@ -6405,7 +6405,7 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
     u8 szDbBusTxData[128] = {0};
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     u32 nSizePerWrite = 1;
-#else 
+#else
     u32 nSizePerWrite = 125;
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_SPRD_PLATFORM)
@@ -6467,14 +6467,14 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
     szDbBusTxData[1] = 0x16;
     szDbBusTxData[2] = 0x02;
 
-    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);
 
     szDbBusTxData[0] = 0x20;
 
-    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
     i = 0;
-    
+
     while (nRemainSize > 0)
     {
         if (nRemainSize > nSizePerWrite)
@@ -6495,7 +6495,7 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
         for (j = 0; j < nBlockSize; j ++)
         {
             szDbBusTxData[3+j] = _gOneDimenFwData[index+(i*nSizePerWrite)+j];
-            nSize ++; 
+            nSize ++;
         }
         i ++;
 
@@ -6513,7 +6513,7 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
     // Program end
     szDbBusTxData[0] = 0x21;
 
-    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
     RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01)); // Clear burst mode
 
@@ -6524,12 +6524,12 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
         // Polling 0x1610 is 0x0002
         nRegData = RegGet16BitValue(0x1610); // Memory status
         nRegData = nRegData & BIT1;
-    
+
         DBG(&g_I2cClient->dev, "Wait write done flag nRegData = 0x%x\n", nRegData);
 
         if (nRegData == BIT1)
         {
-            break;		
+            break;
         }
         mdelay(10);
 
@@ -6550,9 +6550,9 @@ static void _DrvFwCtrlMsg22xxProgramEmem(EmemType_e eEmemType)
     DbBusExitSerialDebugMode();
 }
 
-static u32 _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData1 = 0, nRegData2 = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
@@ -6565,26 +6565,26 @@ static u32 _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
-    
+    RegSetLByteValue(0x0FE6, 0x01);
+
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #else
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     // Stop watchdog
     RegSet16BitValue(0x3C60, 0xAA55);
 
     // RIU password
-    RegSet16BitValue(0x161A, 0xABBA); 
+    RegSet16BitValue(0x161A, 0xABBA);
 
     if (eEmemType == EMEM_MAIN) // Read main block CRC(48KB-4) from main block
     {
@@ -6594,11 +6594,11 @@ static u32 _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
     {
         RegSet16BitValue(0x1600, 0xC1FC); // Set start address for info block CRC
     }
-    
+
     // Enable burst mode
     RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01));
 
-    RegSetLByteValue(0x160E, 0x01); 
+    RegSetLByteValue(0x160E, 0x01);
 
     nRegData1 = RegGet16BitValue(0x1604);
     nRegData2 = RegGet16BitValue(0x1606);
@@ -6607,30 +6607,30 @@ static u32 _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EmemType_e eEmemType)
     nRetVal |= (nRegData2 & 0xFF) << 16;
     nRetVal |= ((nRegData1 >> 8) & 0xFF) << 8;
     nRetVal |= (nRegData1 & 0xFF);
-    
+
     DBG(&g_I2cClient->dev, "CRC = 0x%x\n", nRetVal);
 
     // Clear burst mode
-    RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));      
+    RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
 
-    RegSet16BitValue(0x1600, 0x0000); 
+    RegSet16BitValue(0x1600, 0x0000);
 
     // Clear RIU password
-    RegSet16BitValue(0x161A, 0x0000); 
+    RegSet16BitValue(0x161A, 0x0000);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
-static u32 _DrvFwCtrlMsg22xxRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[], EmemType_e eEmemType) 
+static u32 _DrvFwCtrlMsg22xxRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[], EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
-    
+    u32 nRetVal = 0;
+
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
-    
+
     if (szTmpBuf != NULL)
     {
         if (eEmemType == EMEM_MAIN) // Read main block CRC(48KB-4) from bin file
@@ -6652,29 +6652,29 @@ static u32 _DrvFwCtrlMsg22xxRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[], EmemTy
     return nRetVal;
 }
 
-static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void) 
+static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void)
 {
     s32 nRetVal = -1;
     u32 nCrcInfoA = 0, nCrcInfoB = 0, nCrcMainA = 0, nCrcMainB = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     DBG(&g_I2cClient->dev, "_gIsUpdateInfoBlockFirst = %d, g_IsUpdateFirmware = 0x%x\n", _gIsUpdateInfoBlockFirst, g_IsUpdateFirmware);
 
     _DrvFwCtrlMsg22xxConvertFwDataTwoDimenToOneDimen(g_FwData, _gOneDimenFwData);
-    
+
     if (_gIsUpdateInfoBlockFirst == 1)
     {
         if ((g_IsUpdateFirmware & 0x10) == 0x10)
         {
             _DrvFwCtrlMsg22xxEraseEmem(EMEM_INFO);
             _DrvFwCtrlMsg22xxProgramEmem(EMEM_INFO);
- 
+
             nCrcInfoA = _DrvFwCtrlMsg22xxRetrieveFrimwareCrcFromBinFile(_gOneDimenFwData, EMEM_INFO);
             nCrcInfoB = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_INFO);
 
             DBG(&g_I2cClient->dev, "nCrcInfoA = 0x%x, nCrcInfoB = 0x%x\n", nCrcInfoA, nCrcInfoB);
-        
+
             if (nCrcInfoA == nCrcInfoB)
             {
                 _DrvFwCtrlMsg22xxEraseEmem(EMEM_MAIN);
@@ -6684,7 +6684,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void)
                 nCrcMainB = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_MAIN);
 
                 DBG(&g_I2cClient->dev, "nCrcMainA = 0x%x, nCrcMainB = 0x%x\n", nCrcMainA, nCrcMainB);
-        		
+
                 if (nCrcMainA == nCrcMainB)
                 {
                     g_IsUpdateFirmware = 0x00;
@@ -6709,7 +6709,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void)
             nCrcMainB = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_MAIN);
 
             DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcMainB=0x%x\n", nCrcMainA, nCrcMainB);
-    		
+
             if (nCrcMainA == nCrcMainB)
             {
                 g_IsUpdateFirmware = 0x00;
@@ -6740,7 +6740,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void)
 
                 nCrcInfoA = _DrvFwCtrlMsg22xxRetrieveFrimwareCrcFromBinFile(_gOneDimenFwData, EMEM_INFO);
                 nCrcInfoB = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_INFO);
-                
+
                 DBG(&g_I2cClient->dev, "nCrcInfoA=0x%x, nCrcInfoB=0x%x\n", nCrcInfoA, nCrcInfoB);
 
                 if (nCrcInfoA == nCrcInfoB)
@@ -6777,10 +6777,10 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmwareBySwId(void)
             {
                 g_IsUpdateFirmware = 0x01;
             }
-        }    		
+        }
     }
-    
-    return nRetVal;	
+
+    return nRetVal;
 }
 
 void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
@@ -6791,7 +6791,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
     u16 nMajor = 0, nMinor = 0;
     u8 *pVersion = NULL;
     Msg22xxSwId_e eSwId = MSG22XX_SW_ID_UNDEFINED;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     DrvPlatformLyrDisableFingerTouchReport();
@@ -6801,16 +6801,16 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
 
     nCrcInfoA = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_INFO);
     nCrcInfoB = _DrvFwCtrlMsg22xxRetrieveFirmwareCrcFromEFlash(EMEM_INFO);
-    
+
     _gUpdateFirmwareBySwIdWorkQueue = create_singlethread_workqueue("update_firmware_by_sw_id");
     INIT_WORK(&_gUpdateFirmwareBySwIdWork, _DrvFwCtrlUpdateFirmwareBySwIdDoWork);
 
     DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcInfoA=0x%x, nCrcMainB=0x%x, nCrcInfoB=0x%x\n", nCrcMainA, nCrcInfoA, nCrcMainB, nCrcInfoB);
-               
+
     if (nCrcMainA == nCrcMainB && nCrcInfoA == nCrcInfoB) // Case 1. Main Block:OK, Info Block:OK
     {
         eSwId = _DrvFwCtrlMsg22xxGetSwId(EMEM_MAIN);
-    		
+
         if (eSwId == MSG22XX_SW_ID_XXXX)
         {
             nUpdateBinMajor = msg22xx_xxxx_update_bin[0xBFF5]<<8 | msg22xx_xxxx_update_bin[0xBFF4];
@@ -6827,9 +6827,9 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
 
             eSwId = MSG22XX_SW_ID_UNDEFINED;
             nUpdateBinMajor = 0;
-            nUpdateBinMinor = 0;    		        						
+            nUpdateBinMinor = 0;
         }
-    		
+
         DrvFwCtrlGetCustomerFirmwareVersion(&nMajor, &nMinor, &pVersion);
 
         DBG(&g_I2cClient->dev, "eSwId=0x%x, nMajor=%d, nMinor=%d, nUpdateBinMajor=%d, nUpdateBinMinor=%d\n", eSwId, nMajor, nMinor, nUpdateBinMajor, nUpdateBinMinor);
@@ -6876,7 +6876,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
                 g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
                 _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete 
+                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete
                 g_IsUpdateFirmware = 0x11;
                 queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
                 return;
@@ -6896,7 +6896,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
     else if (nCrcMainA == nCrcMainB && nCrcInfoA != nCrcInfoB) // Case 2. Main Block:OK, Info Block:FAIL
     {
         eSwId = _DrvFwCtrlMsg22xxGetSwId(EMEM_MAIN);
-    		
+
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
 
         if (eSwId == MSG22XX_SW_ID_XXXX)
@@ -6939,7 +6939,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
             g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
             _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-            _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete 
+            _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete
             g_IsUpdateFirmware = 0x11;
             queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
             return;
@@ -6953,7 +6953,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
     else if (nCrcMainA != nCrcMainB && nCrcInfoA == nCrcInfoB) // Case 3. Main Block:FAIL, Info Block:OK
     {
         eSwId = _DrvFwCtrlMsg22xxGetSwId(EMEM_INFO);
-		
+
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
 
         if (eSwId == MSG22XX_SW_ID_XXXX)
@@ -6996,7 +6996,7 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
             g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
             _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-            _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken 
+            _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken
             g_IsUpdateFirmware = 0x11;
             queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
             return;
@@ -7024,9 +7024,9 @@ void _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId(void)
 //-------------------------Start of SW ID for MSG21XXA----------------------------//
 
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
-static u32 _DrvFwCtrlMsg21xxaCalculateMainCrcFromEFlash(void) 
+static u32 _DrvFwCtrlMsg21xxaCalculateMainCrcFromEFlash(void)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
@@ -7052,7 +7052,7 @@ static u32 _DrvFwCtrlMsg21xxaCalculateMainCrcFromEFlash(void)
 
     // Start MCU
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x9432
@@ -7066,19 +7066,19 @@ static u32 _DrvFwCtrlMsg21xxaCalculateMainCrcFromEFlash(void)
     // Read calculated main block CRC from register
     nRetVal = RegGet16BitValue(0x3C80);
     nRetVal = (nRetVal << 16) | RegGet16BitValue(0x3C82);
-        
+
     DBG(&g_I2cClient->dev, "Main Block CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
-static u32 _DrvFwCtrlMsg21xxaRetrieveMainCrcFromMainBlock(void) 
+static u32 _DrvFwCtrlMsg21xxaRetrieveMainCrcFromMainBlock(void)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[4] = {0};
@@ -7106,7 +7106,7 @@ static u32 _DrvFwCtrlMsg21xxaRetrieveMainCrcFromMainBlock(void)
 
     // Start MCU
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -7121,7 +7121,7 @@ static u32 _DrvFwCtrlMsg21xxaRetrieveMainCrcFromMainBlock(void)
     szDbBusTxData[2] = 0xFC;
     szDbBusTxData[3] = 0x00;
     szDbBusTxData[4] = 0x04;
-    
+
     IicWriteData(SLAVE_I2C_ID_DWI2C, &szDbBusTxData[0], 5);
     IicReadData(SLAVE_I2C_ID_DWI2C, &szDbBusRxData[0], 4);
 
@@ -7129,17 +7129,17 @@ static u32 _DrvFwCtrlMsg21xxaRetrieveMainCrcFromMainBlock(void)
     nRetVal = (nRetVal << 8) | szDbBusRxData[1];
     nRetVal = (nRetVal << 8) | szDbBusRxData[2];
     nRetVal = (nRetVal << 8) | szDbBusRxData[3];
-   
+
     DBG(&g_I2cClient->dev, "CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
-static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_e eEmemType) 
+static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_e eEmemType)
 {
     u32 i, j, nCalculateCrcSize;
     u32 nCrcMain = 0, nCrcMainTp = 0;
@@ -7206,8 +7206,8 @@ static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_
 
             RegSetLByteValue(0x0FE6, 0x01);
 
-            RegSetLByteValue(0x3CE4, 0xC5); 
-            RegSetLByteValue(0x3CE5, 0x78); 
+            RegSetLByteValue(0x3CE4, 0xC5);
+            RegSetLByteValue(0x3CE5, 0x78);
 
             RegSetLByteValue(0x1E04, 0x9F);
             RegSetLByteValue(0x1E05, 0x82);
@@ -7242,7 +7242,7 @@ static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_
     {
         nCalculateCrcSize = 0;
     }
-		
+
     for (i = 0; i < nCalculateCrcSize; i ++)
     {
         if (eEmemType == EMEM_INFO)
@@ -7289,7 +7289,7 @@ static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_
             {
                 nCrcInfo = DrvCommonCrcGetValue(szFwData[i][j], nCrcInfo);
             }
-            
+
             if (eEmemType == EMEM_MAIN)
             {
                 break;
@@ -7356,7 +7356,7 @@ static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_
     DbBusExitSerialDebugMode();
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     g_IsUpdateFirmware = 0x00; // Set flag to 0x00 for indicating update firmware is finished
 
     if ((eEmemType == EMEM_ALL) || (eEmemType == EMEM_MAIN))
@@ -7382,16 +7382,16 @@ static s32 _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(u8 szFwData[][1024], EmemType_
     DBG(&g_I2cClient->dev, "Update SUCCESS\n");
 
     return 0;
-} 
+}
 
-void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void) 
+void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
 {
     u32 nCrcMainA, nCrcMainB;
     u32 i;
     u16 nUpdateBinMajor = 0, nUpdateBinMinor = 0;
     u16 nMajor = 0, nMinor = 0;
     u8 nIsCompareVersion = 0;
-    u8 *pVersion = NULL; 
+    u8 *pVersion = NULL;
     Msg21xxaSwId_e eMainSwId = MSG21XXA_SW_ID_UNDEFINED, eInfoSwId = MSG21XXA_SW_ID_UNDEFINED, eSwId = MSG21XXA_SW_ID_UNDEFINED;
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
@@ -7405,12 +7405,12 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
     INIT_WORK(&_gUpdateFirmwareBySwIdWork, _DrvFwCtrlUpdateFirmwareBySwIdDoWork);
 
     DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcMainB=0x%x\n", nCrcMainA, nCrcMainB);
-               
-    if (nCrcMainA == nCrcMainB) 
+
+    if (nCrcMainA == nCrcMainB)
     {
         eMainSwId = _DrvFwCtrlMsg21xxaGetSwId(EMEM_MAIN);
         eInfoSwId = _DrvFwCtrlMsg21xxaGetSwId(EMEM_INFO);
-    		
+
         DBG(&g_I2cClient->dev, "Check firmware integrity success\n");
         DBG(&g_I2cClient->dev, "eMainSwId=0x%x, eInfoSwId=0x%x\n", eMainSwId, eInfoSwId);
 
@@ -7424,7 +7424,7 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
         		eSwId = eInfoSwId;
         		nIsCompareVersion = 0;
         }
-        
+
         if (eSwId == MSG21XXA_SW_ID_XXXX)
         {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_TWO_DIMENSIONAL_ARRAY // By two dimensional array
@@ -7451,11 +7451,11 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
 
             eSwId = MSG21XXA_SW_ID_UNDEFINED;
             nUpdateBinMajor = 0;
-            nUpdateBinMinor = 0;    		        						
+            nUpdateBinMinor = 0;
         }
 
         DrvFwCtrlGetCustomerFirmwareVersion(&nMajor, &nMinor, &pVersion);
-    		        
+
         DBG(&g_I2cClient->dev, "eSwId=0x%x, nMajor=%d, nMinor=%d, nUpdateBinMajor=%d, nUpdateBinMinor=%d\n", eSwId, nMajor, nMinor, nUpdateBinMajor, nUpdateBinMinor);
 
         if ((nUpdateBinMinor > nMinor && nIsCompareVersion == 1) || (nIsCompareVersion == 0))
@@ -7512,7 +7512,7 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
     else
     {
         eSwId = _DrvFwCtrlMsg21xxaGetSwId(EMEM_INFO);
-    		
+
         DBG(&g_I2cClient->dev, "Check firmware integrity failed\n");
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
 
@@ -7561,7 +7561,7 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
     }
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     DrvPlatformLyrEnableFingerTouchReport();
 }
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
@@ -7573,7 +7573,7 @@ void _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId(void)
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
 static u32 _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EmemType_e eEmemType, u8 nIsNeedResetHW)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData = 0;
 
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d, nIsNeedResetHW = %d ***\n", __func__, eEmemType, nIsNeedResetHW);
@@ -7582,7 +7582,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EmemType_e eEmemType
     {
         DrvPlatformLyrTouchDeviceResetHw();
     }
-    
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -7603,7 +7603,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EmemType_e eEmemType
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x9432
@@ -7616,7 +7616,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EmemType_e eEmemType
     {
         nRetVal = RegGet16BitValue(0x3C80);
         nRetVal = (nRetVal << 16) | RegGet16BitValue(0x3C82);
-        
+
         DBG(&g_I2cClient->dev, "Main Block CRC = 0x%x\n", nRetVal);
     }
     else if (eEmemType == EMEM_INFO) // Read calculated info block CRC(8K) from register
@@ -7631,12 +7631,12 @@ static u32 _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EmemType_e eEmemType
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
 static u32 _DrvFwCtrlMsg26xxmRetrieveFirmwareCrcFromMainBlock(EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[4] = {0};
@@ -7644,7 +7644,7 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveFirmwareCrcFromMainBlock(EmemType_e eEmemTy
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -7665,7 +7665,7 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveFirmwareCrcFromMainBlock(EmemType_e eEmemTy
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -7702,19 +7702,19 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveFirmwareCrcFromMainBlock(EmemType_e eEmemTy
     nRetVal = (nRetVal << 8) | szDbBusRxData[2];
     nRetVal = (nRetVal << 8) | szDbBusRxData[1];
     nRetVal = (nRetVal << 8) | szDbBusRxData[0];
-    
+
     DBG(&g_I2cClient->dev, "CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
 static u32 _DrvFwCtrlMsg26xxmRetrieveInfoCrcFromInfoBlock(void)
 {
-    u32 nRetVal = 0; 
+    u32 nRetVal = 0;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[4] = {0};
@@ -7722,7 +7722,7 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveInfoCrcFromInfoBlock(void)
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -7743,7 +7743,7 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveInfoCrcFromInfoBlock(void)
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -7767,22 +7767,22 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveInfoCrcFromInfoBlock(void)
     nRetVal = (nRetVal << 8) | szDbBusRxData[2];
     nRetVal = (nRetVal << 8) | szDbBusRxData[1];
     nRetVal = (nRetVal << 8) | szDbBusRxData[0];
-    
+
     DBG(&g_I2cClient->dev, "CRC = 0x%x\n", nRetVal);
 
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
-    
-    return nRetVal;	
+
+    return nRetVal;
 }
 
 static u32 _DrvFwCtrlMsg26xxmRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[][1024], EmemType_e eEmemType)
 {
-    u32 nRetVal = 0; 
-    
+    u32 nRetVal = 0;
+
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
-    
+
     if (szTmpBuf != NULL)
     {
         if (eEmemType == EMEM_MAIN) // Read main block CRC(32K-8) from bin file
@@ -7806,7 +7806,7 @@ static u32 _DrvFwCtrlMsg26xxmRetrieveFrimwareCrcFromBinFile(u8 szTmpBuf[][1024],
 
 static u32 _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver(void)
 {
-    u32 nRetVal = 0xffffffff; 
+    u32 nRetVal = 0xffffffff;
     u32 i, j;
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
@@ -7820,7 +7820,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver(void)
 #endif //CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM
 
     DrvPlatformLyrTouchDeviceResetHw();
-    
+
     DbBusEnterSerialDebugMode();
     DbBusStopMCU();
     DbBusIICUseBus();
@@ -7842,7 +7842,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver(void)
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -7868,9 +7868,9 @@ static u32 _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver(void)
             IicWriteData(SLAVE_I2C_ID_DWI2C, &szDbBusTxData[0], 5);
 
             // Receive info data
-            IicReadData(SLAVE_I2C_ID_DWI2C, &_gTempData[j*128], 128); 
+            IicReadData(SLAVE_I2C_ID_DWI2C, &_gTempData[j*128], 128);
         }
-     
+
         if (i == 0)
         {
             for (j = 4; j < 1024; j ++)
@@ -7895,7 +7895,7 @@ static u32 _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver(void)
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
 
-    return nRetVal;	
+    return nRetVal;
 }
 
 static s32 _DrvFwCtrlMsg26xxmCompare8BytesForCrc(u8 szTmpBuf[][1024])
@@ -7904,10 +7904,10 @@ static s32 _DrvFwCtrlMsg26xxmCompare8BytesForCrc(u8 szTmpBuf[][1024])
     u16 nRegData = 0;
     u8 szDbBusTxData[5] = {0};
     u8 szDbBusRxData[8] = {0};
-    u8 crc[8] = {0}; 
-    
+    u8 crc[8] = {0};
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     // Read 8 bytes from bin file
     if (szTmpBuf != NULL)
     {
@@ -7942,7 +7942,7 @@ static s32 _DrvFwCtrlMsg26xxmCompare8BytesForCrc(u8 szTmpBuf[][1024])
 
     // Start mcu
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
     mdelay(100);
 
     // Polling 0x3CE4 is 0x5B58
@@ -7963,7 +7963,7 @@ static s32 _DrvFwCtrlMsg26xxmCompare8BytesForCrc(u8 szTmpBuf[][1024])
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
-    
+
     if (crc[0] == szDbBusRxData[0]
         && crc[1] == szDbBusRxData[1]
         && crc[2] == szDbBusRxData[2]
@@ -7973,13 +7973,13 @@ static s32 _DrvFwCtrlMsg26xxmCompare8BytesForCrc(u8 szTmpBuf[][1024])
         && crc[6] == szDbBusRxData[6]
         && crc[7] == szDbBusRxData[7])
     {
-        nRetVal = 0;		
+        nRetVal = 0;
     }
     else
     {
-        nRetVal = -1;		
+        nRetVal = -1;
     }
-    
+
     DBG(&g_I2cClient->dev, "compare 8bytes for CRC = %d\n", nRetVal);
 
     return nRetVal;
@@ -8014,7 +8014,7 @@ static void _DrvFwCtrlMsg26xxmEraseFirmwareOnEFlash(EmemType_e eEmemType)
     RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
 
     mdelay(100);
-        
+
     DBG(&g_I2cClient->dev, "erase 1\n");
 
     // Stop mcu
@@ -8038,9 +8038,9 @@ static void _DrvFwCtrlMsg26xxmEraseFirmwareOnEFlash(EmemType_e eEmemType)
 
     // Clear setting
     RegSetLByteValue(0x1618, 0x40); //bank:emem, addr:h000C
-    
+
     mdelay(10);
-    
+
     // Clear pce
     RegSetLByteValue(0x1618, 0x80); //bank:emem, addr:h000C
 
@@ -8059,16 +8059,16 @@ static void _DrvFwCtrlMsg26xxmEraseFirmwareOnEFlash(EmemType_e eEmemType)
     DbBusIICNotUseBus();
     DbBusNotStopMCU();
     DbBusExitSerialDebugMode();
-    
-    mdelay(200);	
-    
+
+    mdelay(200);
+
     DBG(&g_I2cClient->dev, "erase OK\n");
 }
 
 static void _DrvFwCtrlMsg26xxmProgramFirmwareOnEFlash(EmemType_e eEmemType)
 {
-    u32 nStart = 0, nEnd = 0; 
-    u32 i, j; 
+    u32 nStart = 0, nEnd = 0;
+    u32 i, j;
     u16 nRegData = 0;
 //    u16 nRegData2 = 0, nRegData3 = 0; // add for debug
 
@@ -8102,18 +8102,18 @@ static void _DrvFwCtrlMsg26xxmProgramFirmwareOnEFlash(EmemType_e eEmemType)
         // TP SW reset
         RegSet16BitValue(0x1E04, 0x7d60); //bank:chip, addr:h0002
         RegSet16BitValue(0x1E04, 0x829F);
-        
+
         nRegData = RegGet16BitValue(0x1618);
 //        DBG(&g_I2cClient->dev, "*** reg(0x16, 0x18)  = 0x%x ***\n", nRegData); // add for debug
-        
+
         nRegData |= 0x40;
 //        DBG(&g_I2cClient->dev, "*** nRegData  = 0x%x ***\n", nRegData); // add for debug
-        
+
         RegSetLByteValue(0x1618, nRegData);
 
         // Start mcu
         RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
         mdelay(100);
     }
 
@@ -8217,23 +8217,23 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
 {
     s32 nRetVal = -1;
     u32 nCrcInfoA = 0, nCrcInfoB = 0, nCrcMainA = 0, nCrcMainB = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     DBG(&g_I2cClient->dev, "_gIsUpdateInfoBlockFirst = %d, g_IsUpdateFirmware = 0x%x\n", _gIsUpdateInfoBlockFirst, g_IsUpdateFirmware);
-    
+
     if (_gIsUpdateInfoBlockFirst == 1)
     {
         if ((g_IsUpdateFirmware & 0x10) == 0x10)
         {
             _DrvFwCtrlMsg26xxmEraseFirmwareOnEFlash(EMEM_INFO);
             _DrvFwCtrlMsg26xxmProgramFirmwareOnEFlash(EMEM_INFO);
- 
+
             nCrcInfoA = _DrvFwCtrlMsg26xxmRetrieveFrimwareCrcFromBinFile(g_FwData, EMEM_INFO);
             nCrcInfoB = _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EMEM_INFO, 0);
 
             DBG(&g_I2cClient->dev, "nCrcInfoA = 0x%x, nCrcInfoB = 0x%x\n", nCrcInfoA, nCrcInfoB);
-        
+
             if (nCrcInfoA == nCrcInfoB)
             {
                 _DrvFwCtrlMsg26xxmEraseFirmwareOnEFlash(EMEM_MAIN);
@@ -8243,11 +8243,11 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
                 nCrcMainB = _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EMEM_MAIN, 0);
 
                 DBG(&g_I2cClient->dev, "nCrcMainA = 0x%x, nCrcMainB = 0x%x\n", nCrcMainA, nCrcMainB);
-        		
+
                 if (nCrcMainA == nCrcMainB)
                 {
                     nRetVal = _DrvFwCtrlMsg26xxmCompare8BytesForCrc(g_FwData);
-                    
+
                     if (nRetVal == 0)
                     {
                         g_IsUpdateFirmware = 0x00;
@@ -8276,7 +8276,7 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
             nCrcMainB = _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EMEM_MAIN, 0);
 
             DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcMainB=0x%x\n", nCrcMainA, nCrcMainB);
-    		
+
             if (nCrcMainA == nCrcMainB)
             {
                 nRetVal = _DrvFwCtrlMsg26xxmCompare8BytesForCrc(g_FwData);
@@ -8315,13 +8315,13 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
 
                 nCrcInfoA = _DrvFwCtrlMsg26xxmRetrieveFrimwareCrcFromBinFile(g_FwData, EMEM_INFO);
                 nCrcInfoB = _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EMEM_INFO, 0);
-                
+
                 DBG(&g_I2cClient->dev, "nCrcInfoA=0x%x, nCrcInfoB=0x%x\n", nCrcInfoA, nCrcInfoB);
 
                 if (nCrcInfoA == nCrcInfoB)
                 {
                     nRetVal = _DrvFwCtrlMsg26xxmCompare8BytesForCrc(g_FwData);
-                    
+
                     if (nRetVal == 0)
                     {
                         g_IsUpdateFirmware = 0x00;
@@ -8354,7 +8354,7 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
             if (nCrcInfoA == nCrcInfoB)
             {
                 nRetVal = _DrvFwCtrlMsg26xxmCompare8BytesForCrc(g_FwData);
-                
+
                 if (nRetVal == 0)
                 {
                     g_IsUpdateFirmware = 0x00;
@@ -8368,10 +8368,10 @@ static s32 _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId(void)
             {
                 g_IsUpdateFirmware = 0x01;
             }
-        }    		
+        }
     }
-    
-    return nRetVal;	
+
+    return nRetVal;
 }
 
 void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
@@ -8382,7 +8382,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
     u16 nMajor = 0, nMinor = 0;
     u8 *pVersion = NULL;
     Msg26xxmSwId_e eSwId = MSG26XXM_SW_ID_UNDEFINED;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     DrvPlatformLyrDisableFingerTouchReport();
@@ -8392,18 +8392,18 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
 
     nCrcInfoA = _DrvFwCtrlMsg26xxmCalculateFirmwareCrcFromEFlash(EMEM_INFO, 1);
     nCrcInfoB = _DrvFwCtrlMsg26xxmRetrieveFirmwareCrcFromMainBlock(EMEM_INFO);
-    
+
     _gUpdateFirmwareBySwIdWorkQueue = create_singlethread_workqueue("update_firmware_by_sw_id");
     INIT_WORK(&_gUpdateFirmwareBySwIdWork, _DrvFwCtrlUpdateFirmwareBySwIdDoWork);
 
     DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcInfoA=0x%x, nCrcMainB=0x%x, nCrcInfoB=0x%x\n", nCrcMainA, nCrcInfoA, nCrcMainB, nCrcInfoB);
-               
+
     if (nCrcMainA == nCrcMainB && nCrcInfoA == nCrcInfoB) // Case 1. Main Block:OK, Info Block:OK
     {
         eSwId = _DrvFwCtrlMsg26xxmGetSwId(EMEM_MAIN);
 
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
-    		
+
         if (eSwId == MSG26XXM_SW_ID_XXXX)
         {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_TWO_DIMENSIONAL_ARRAY // By two dimensional array
@@ -8430,9 +8430,9 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
 
             eSwId = MSG26XXM_SW_ID_UNDEFINED;
             nUpdateBinMajor = 0;
-            nUpdateBinMinor = 0;    		        						
+            nUpdateBinMinor = 0;
         }
-    		
+
         DrvFwCtrlGetCustomerFirmwareVersion(&nMajor, &nMinor, &pVersion);
 
         DBG(&g_I2cClient->dev, "eSwId=0x%x, nMajor=%d, nMinor=%d, nUpdateBinMajor=%d, nUpdateBinMinor=%d\n", eSwId, nMajor, nMinor, nUpdateBinMajor, nUpdateBinMinor);
@@ -8473,7 +8473,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
                 g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
                 _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete 
+                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete
                 g_IsUpdateFirmware = 0x11;
                 queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
                 return;
@@ -8493,7 +8493,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
     else if (nCrcMainA == nCrcMainB && nCrcInfoA != nCrcInfoB) // Case 2. Main Block:OK, Info Block:FAIL
     {
         eSwId = _DrvFwCtrlMsg26xxmGetSwId(EMEM_MAIN);
-    		
+
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
 
         if (eSwId == MSG26XXM_SW_ID_XXXX)
@@ -8530,7 +8530,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
             g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
             _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-            _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete 
+            _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete
             g_IsUpdateFirmware = 0x11;
             queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
             return;
@@ -8545,7 +8545,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
     {
         nCrcInfoA = _DrvFwCtrlMsg26xxmRetrieveInfoCrcFromInfoBlock();
         nCrcInfoB = _DrvFwCtrlMsg26xxmCalculateInfoCrcByDeviceDriver();
-        
+
         DBG(&g_I2cClient->dev, "8K-4 : nCrcInfoA=0x%x, nCrcInfoB=0x%x\n", nCrcInfoA, nCrcInfoB);
 
         if (nCrcInfoA == nCrcInfoB) // Check if info block is actually OK.
@@ -8588,7 +8588,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
                 g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
                 _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-                _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken 
+                _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken
                 g_IsUpdateFirmware = 0x11;
                 queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
                 return;
@@ -8605,7 +8605,7 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
         }
     }
 
-    DrvPlatformLyrTouchDeviceResetHw(); 
+    DrvPlatformLyrTouchDeviceResetHw();
 
     DrvPlatformLyrEnableFingerTouchReport();
 }
@@ -8617,13 +8617,13 @@ void _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId(void)
 
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG28XX
 /*
-static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void) 
+static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
 {
     s32 nRetVal = -1;
     u32 nCrcInfoA = 0, nCrcInfoB = 0, nCrcMainA = 0, nCrcMainB = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     DBG(&g_I2cClient->dev, "_gIsUpdateInfoBlockFirst = %d, g_IsUpdateFirmware = 0x%x\n", _gIsUpdateInfoBlockFirst, g_IsUpdateFirmware);
 
     if (_gIsUpdateInfoBlockFirst == 1)
@@ -8632,12 +8632,12 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
         {
             _DrvFwCtrlMsg28xxEraseEmem(EMEM_INFO);
             _DrvFwCtrlMsg28xxProgramEmem(EMEM_INFO);
- 
+
             nCrcInfoA = _DrvFwCtrlMsg28xxRetrieveFrimwareCrcFromBinFile(g_FwData, EMEM_INFO);
             nCrcInfoB = _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EMEM_INFO);
 
             DBG(&g_I2cClient->dev, "nCrcInfoA = 0x%x, nCrcInfoB = 0x%x\n", nCrcInfoA, nCrcInfoB);
-        
+
             if (nCrcInfoA == nCrcInfoB)
             {
                 _DrvFwCtrlMsg28xxEraseEmem(EMEM_MAIN);
@@ -8647,7 +8647,7 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
                 nCrcMainB = _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EMEM_MAIN);
 
                 DBG(&g_I2cClient->dev, "nCrcMainA = 0x%x, nCrcMainB = 0x%x\n", nCrcMainA, nCrcMainB);
-        		
+
                 if (nCrcMainA == nCrcMainB)
                 {
                     g_IsUpdateFirmware = 0x00;
@@ -8672,7 +8672,7 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
             nCrcMainB = _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EMEM_MAIN);
 
             DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcMainB=0x%x\n", nCrcMainA, nCrcMainB);
-    		
+
             if (nCrcMainA == nCrcMainB)
             {
                 g_IsUpdateFirmware = 0x00;
@@ -8703,7 +8703,7 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
 
                 nCrcInfoA = _DrvFwCtrlMsg28xxRetrieveFrimwareCrcFromBinFile(g_FwData, EMEM_INFO);
                 nCrcInfoB = _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EMEM_INFO);
-                
+
                 DBG(&g_I2cClient->dev, "nCrcInfoA=0x%x, nCrcInfoB=0x%x\n", nCrcInfoA, nCrcInfoB);
 
                 if (nCrcInfoA == nCrcInfoB)
@@ -8740,14 +8740,14 @@ static s32 _DrvFwCtrlMsg28xxUpdateFirmwareBySwId(void)
             {
                 g_IsUpdateFirmware = 0x01;
             }
-        }    		
+        }
     }
-    
-    return nRetVal;	
+
+    return nRetVal;
 }
 */
 
-void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void) 
+void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
 {
     u32 nCrcMainA, nCrcMainB;
     u32 i;
@@ -8755,7 +8755,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
     u16 nMajor = 0, nMinor = 0;
     u8 *pVersion = NULL;
     Msg28xxSwId_e eMainSwId = MSG28XX_SW_ID_UNDEFINED, eSwId = MSG28XX_SW_ID_UNDEFINED;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     DrvPlatformLyrDisableFingerTouchReport();
@@ -8765,19 +8765,19 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
 
     DBG(&g_I2cClient->dev, "nCrcMainA=0x%x, nCrcMainB=0x%x\n", nCrcMainA, nCrcMainB);
 	printk("nCrcMainA=0x%x, nCrcMainB=0x%x\n",nCrcMainA,nCrcMainB);
-#ifdef CONFIG_ENABLE_CODE_FOR_DEBUG  // TODO : add for debug 
-    if (nCrcMainA != nCrcMainB) 
+#ifdef CONFIG_ENABLE_CODE_FOR_DEBUG  // TODO : add for debug
+    if (nCrcMainA != nCrcMainB)
     {
         for (i = 0; i < 5; i ++)
         {
             nCrcMainA = _DrvFwCtrlMsg28xxGetFirmwareCrcByHardware(EMEM_MAIN);
             nCrcMainB = _DrvFwCtrlMsg28xxRetrieveFirmwareCrcFromEFlash(EMEM_MAIN);
-    
+
             DBG(&g_I2cClient->dev, "*** Retry[%d] : nCrcMainA=0x%x, nCrcMainB=0x%x ***\n", i, nCrcMainA, nCrcMainB);
 
             if (nCrcMainA == nCrcMainB)
             {
-                break;            
+                break;
             }
 
             mdelay(50);
@@ -8788,10 +8788,10 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
     _gUpdateFirmwareBySwIdWorkQueue = create_singlethread_workqueue("update_firmware_by_sw_id");
     INIT_WORK(&_gUpdateFirmwareBySwIdWork, _DrvFwCtrlUpdateFirmwareBySwIdDoWork);
 
-    if (nCrcMainA == nCrcMainB) 
+    if (nCrcMainA == nCrcMainB)
     {
         eMainSwId = _DrvFwCtrlMsg28xxGetSwId(EMEM_MAIN);
-    		
+
         DBG(&g_I2cClient->dev, "eMainSwId=0x%x\n", eMainSwId);
 	printk("eMainSwId=0x%x\n",eMainSwId);
 
@@ -8800,7 +8800,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
         if (eSwId == MSG28XX_SW_ID_XXXX)
         {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_TWO_DIMENSIONAL_ARRAY // By two dimensional array
-            nUpdateBinMajor = msg28xx_xxxx_update_bin[127][1013]<<8 | msg28xx_xxxx_update_bin[127][1012]; 
+            nUpdateBinMajor = msg28xx_xxxx_update_bin[127][1013]<<8 | msg28xx_xxxx_update_bin[127][1012];
             nUpdateBinMinor = msg28xx_xxxx_update_bin[127][1015]<<8 | msg28xx_xxxx_update_bin[127][1014];
 #else // By one dimensional array
             nUpdateBinMajor = msg28xx_xxxx_update_bin[0x1FFF5]<<8 | msg28xx_xxxx_update_bin[0x1FFF4];
@@ -8810,7 +8810,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
         else if (eSwId == MSG28XX_SW_ID_YYYY)
         {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_TWO_DIMENSIONAL_ARRAY // By two dimensional array
-            nUpdateBinMajor = msg28xx_yyyy_update_bin[127][1013]<<8 | msg28xx_yyyy_update_bin[127][1012]; 
+            nUpdateBinMajor = msg28xx_yyyy_update_bin[127][1013]<<8 | msg28xx_yyyy_update_bin[127][1012];
             nUpdateBinMinor = msg28xx_yyyy_update_bin[127][1015]<<8 | msg28xx_yyyy_update_bin[127][1014];
 #else // By one dimensional array
             nUpdateBinMajor = msg28xx_yyyy_update_bin[0x1FFF5]<<8 | msg28xx_yyyy_update_bin[0x1FFF4];
@@ -8818,22 +8818,22 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
 #endif
         }
         else if (eSwId == MSG28XX_SW_ID_ZZZZ)
-        {	
+        {
 #ifdef CONFIG_UPDATE_FIRMWARE_BY_TWO_DIMENSIONAL_ARRAY // By two dimensional array
-            nUpdateBinMajor = msg28xx_zzzz_update_bin[127][1013]<<8 | msg28xx_zzzz_update_bin[127][1012]; 
+            nUpdateBinMajor = msg28xx_zzzz_update_bin[127][1013]<<8 | msg28xx_zzzz_update_bin[127][1012];
             nUpdateBinMinor = msg28xx_zzzz_update_bin[127][1015]<<8 | msg28xx_zzzz_update_bin[127][1014];
 #else // By one dimensional array
             nUpdateBinMajor = msg28xx_zzzz_update_bin[0x1FFF5]<<8 | msg28xx_zzzz_update_bin[0x1FFF4];
             nUpdateBinMinor = msg28xx_zzzz_update_bin[0x1FFF7]<<8 | msg28xx_zzzz_update_bin[0x1FFF6];
 #endif
-        }        
+        }
         else //eSwId == MSG28XX_SW_ID_UNDEFINED
         {
             DBG(&g_I2cClient->dev, "eSwId = 0x%x is an undefined SW ID.\n", eSwId);
 
             eSwId = MSG28XX_SW_ID_UNDEFINED;
             nUpdateBinMajor = 0;
-            nUpdateBinMinor = 0;    		        						
+            nUpdateBinMinor = 0;
         }
 
         DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EMEM_MAIN, &nMajor, &nMinor, &pVersion);
@@ -8875,7 +8875,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
                     _DrvFwCtrlStoreFirmwareData(&(msg28xx_zzzz_update_bin[i*1024]), 1024);
 #endif
                 }
-            }			
+            }
             else
             {
                 DBG(&g_I2cClient->dev, "eSwId = 0x%x is an undefined SW ID.\n", eSwId);
@@ -8888,7 +8888,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
                 g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
                 _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete 
+                _gIsUpdateInfoBlockFirst = 1; // Set 1 for indicating main block is complete
                 g_IsUpdateFirmware = 0x11;
                 queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
                 return;
@@ -8905,10 +8905,10 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
             DBG(&g_I2cClient->dev, "Go to normal boot up process.\n");
         }
     }
-    else 
+    else
     {
         eSwId = _DrvFwCtrlMsg28xxGetSwId(EMEM_INFO);
-		
+
         DBG(&g_I2cClient->dev, "eSwId=0x%x\n", eSwId);
 
         if (eSwId == MSG28XX_SW_ID_XXXX)
@@ -8943,7 +8943,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
                 _DrvFwCtrlStoreFirmwareData(&(msg28xx_zzzz_update_bin[i*1024]), 1024);
 #endif
             }
-        }		
+        }
         else
         {
             DBG(&g_I2cClient->dev, "eSwId = 0x%x is an undefined SW ID.\n", eSwId);
@@ -8956,7 +8956,7 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
             g_FwDataCount = 0; // Reset g_FwDataCount to 0 after copying update firmware data to temp buffer
 
             _gUpdateRetryCount = UPDATE_FIRMWARE_RETRY_COUNT;
-            _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken 
+            _gIsUpdateInfoBlockFirst = 0; // Set 0 for indicating main block is broken
             g_IsUpdateFirmware = 0x11;
             queue_work(_gUpdateFirmwareBySwIdWorkQueue, &_gUpdateFirmwareBySwIdWork);
             return;
@@ -8979,20 +8979,20 @@ void _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId(void)
 static void _DrvFwCtrlUpdateFirmwareBySwIdDoWork(struct work_struct *pWork)
 {
     s32 nRetVal = -1;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() _gUpdateRetryCount = %d ***\n", __func__, _gUpdateRetryCount);
 
-    if (g_ChipType == CHIP_TYPE_MSG21XXA)   
+    if (g_ChipType == CHIP_TYPE_MSG21XXA)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
         nRetVal = _DrvFwCtrlMsg21xxaUpdateFirmwareBySwId(g_FwData, EMEM_MAIN);
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
     }
-    else if (g_ChipType == CHIP_TYPE_MSG22XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG22XX)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG22XX
         _DrvFwCtrlMsg22xxGetTpVendorCode(_gTpVendorCode);
-        
+
         if (_gTpVendorCode[0] == 'C' && _gTpVendorCode[1] == 'N' && _gTpVendorCode[2] == 'T') // for specific TP vendor which store some important information in info block, only update firmware for main block, do not update firmware for info block.
         {
             nRetVal = _DrvFwCtrlMsg22xxUpdateFirmware(g_FwData, EMEM_MAIN);
@@ -9003,13 +9003,13 @@ static void _DrvFwCtrlUpdateFirmwareBySwIdDoWork(struct work_struct *pWork)
         }
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG22XX
     }
-    else if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
         nRetVal = _DrvFwCtrlMsg26xxmUpdateFirmwareBySwId();
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
     }
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG28XX
         nRetVal = _DrvFwCtrlMsg28xxUpdateFirmware(g_FwData, EMEM_MAIN);
@@ -9019,16 +9019,16 @@ static void _DrvFwCtrlUpdateFirmwareBySwIdDoWork(struct work_struct *pWork)
     {
         DBG(&g_I2cClient->dev, "This chip type (0x%x) does not support update firmware by sw id\n", g_ChipType);
 
-        DrvPlatformLyrTouchDeviceResetHw(); 
+        DrvPlatformLyrTouchDeviceResetHw();
 
         DrvPlatformLyrEnableFingerTouchReport();
 
         nRetVal = -1;
         return;
     }
-    
+
     DBG(&g_I2cClient->dev, "*** update firmware by sw id result = %d ***\n", nRetVal);
-    
+
     if (nRetVal == 0)
     {
         DBG(&g_I2cClient->dev, "update firmware by sw id success\n");
@@ -9037,7 +9037,7 @@ static void _DrvFwCtrlUpdateFirmwareBySwIdDoWork(struct work_struct *pWork)
 
         DrvPlatformLyrEnableFingerTouchReport();
 
-        if (g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)    
+        if (g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
         {
             _gIsUpdateInfoBlockFirst = 0;
             g_IsUpdateFirmware = 0x00;
@@ -9059,7 +9059,7 @@ static void _DrvFwCtrlUpdateFirmwareBySwIdDoWork(struct work_struct *pWork)
 
             DrvPlatformLyrEnableFingerTouchReport();
 
-            if (g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)    
+            if (g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
             {
                 _gIsUpdateInfoBlockFirst = 0;
                 g_IsUpdateFirmware = 0x00;
@@ -9080,19 +9080,19 @@ static void _DrvFwCtrlEraseEmemC32(void)
     /////////////////////////
     //Erase  all
     /////////////////////////
-    
+
     // Enter gpio mode
     RegSet16BitValue(0x161E, 0xBEAF);
 
     // Before gpio mode, set the control pin as the orginal status
     RegSet16BitValue(0x1608, 0x0000);
     RegSetLByteValue(0x160E, 0x10);
-    mdelay(10); 
+    mdelay(10);
 
     // ptrim = 1, h'04[2]
     RegSetLByteValue(0x1608, 0x04);
     RegSetLByteValue(0x160E, 0x10);
-    mdelay(10); 
+    mdelay(10);
 
     // ptm = 6, h'04[12:14] = b'110
     RegSetLByteValue(0x1609, 0x60);
@@ -9118,10 +9118,10 @@ static void _DrvFwCtrlReadInfoC33(void)
     u16 nRegData = 0;
 #if defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM) || defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
     u32 i;
-#endif 
+#endif
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    
+
     mdelay(300);
 
     // Stop Watchdog
@@ -9135,12 +9135,12 @@ static void _DrvFwCtrlReadInfoC33(void)
     // TP SW reset
     RegSet16BitValue(0x1E04, 0x829F);
     mdelay(1);
-    
+
     szDbBusTxData[0] = 0x10;
     szDbBusTxData[1] = 0x0F;
     szDbBusTxData[2] = 0xE6;
     szDbBusTxData[3] = 0x00;
-    IicWriteData(SLAVE_I2C_ID_DBBUS, szDbBusTxData, 4);    
+    IicWriteData(SLAVE_I2C_ID_DBBUS, szDbBusTxData, 4);
     mdelay(100);
 
     do
@@ -9171,7 +9171,7 @@ static void _DrvFwCtrlReadInfoC33(void)
     szDbBusTxData[2] = 0x00;
     szDbBusTxData[3] = 0x04; // read 1024 bytes
     szDbBusTxData[4] = 0x00;
-    
+
     IicWriteData(SLAVE_I2C_ID_DWI2C, szDbBusTxData, 5);
 
     mdelay(50);
@@ -9206,7 +9206,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC32(u8 szFwData[][1024], EmemType_e eEmemType
     // Erase  all
     /////////////////////////
     _DrvFwCtrlEraseEmemC32();
-    mdelay(1000); 
+    mdelay(1000);
 
     DrvPlatformLyrTouchDeviceResetHw();
 
@@ -9305,7 +9305,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC32(u8 szFwData[][1024], EmemType_e eEmemType
     // Write file done
     RegSet16BitValue(0x3CE4, 0x1380);
 
-    mdelay(10); 
+    mdelay(10);
     // Polling 0x3CE4 is 0x9432
     do
     {
@@ -9318,7 +9318,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC32(u8 szFwData[][1024], EmemType_e eEmemType
     // CRC Main from TP
     nCrcMainTp = RegGet16BitValue(0x3C80);
     nCrcMainTp = (nCrcMainTp << 16) | RegGet16BitValue(0x3C82);
- 
+
     // CRC Info from TP
     nCrcInfoTp = RegGet16BitValue(0x3CA0);
     nCrcInfoTp = (nCrcInfoTp << 16) | RegGet16BitValue(0x3CA2);
@@ -9383,7 +9383,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC33(u8 szFwData[][1024], EmemType_e eEmemType
         szLifeCounter[0] = (((_gDwIicInfoData[13] << 8) | _gDwIicInfoData[12]) + 1) & 0xFF;
         _gDwIicInfoData[12] = szLifeCounter[0];
         _gDwIicInfoData[13] = szLifeCounter[1];
-        
+
         RegSet16BitValue(0x3CE4, 0x78C5);
         RegSet16BitValue(0x1E04, 0x7d60);
         // TP SW reset
@@ -9452,8 +9452,8 @@ static s32 _DrvFwCtrlUpdateFirmwareC33(u8 szFwData[][1024], EmemType_e eEmemType
 
             RegSetLByteValue(0x0FE6, 0x01);
 
-            RegSetLByteValue(0x3CE4, 0xC5); 
-            RegSetLByteValue(0x3CE5, 0x78); 
+            RegSetLByteValue(0x3CE4, 0xC5);
+            RegSetLByteValue(0x3CE5, 0x78);
 
             RegSetLByteValue(0x1E04, 0x9F);
             RegSetLByteValue(0x1E05, 0x82);
@@ -9518,7 +9518,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC33(u8 szFwData[][1024], EmemType_e eEmemType
             {
                 nCrcInfo = DrvCommonCrcGetValue(_gDwIicInfoData[j], nCrcInfo);
             }
-            
+
             if (eEmemType == EMEM_MAIN)
             {
                 break;
@@ -9593,7 +9593,7 @@ static s32 _DrvFwCtrlUpdateFirmwareC33(u8 szFwData[][1024], EmemType_e eEmemType
             return -1;
         }
     }
-    
+
     DBG(&g_I2cClient->dev, "Update SUCCESS\n");
 
     return 0;
@@ -9616,7 +9616,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     u8 szDbBusTxData[128] = {0};
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     u32 nSizePerWrite = 1;
-#else 
+#else
     u32 nSizePerWrite = 125;
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_SPRD_PLATFORM)
@@ -9646,25 +9646,25 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     DbBusStopMCU();
     DbBusIICUseBus();
     DbBusIICReshape();
-    
+
     DBG(&g_I2cClient->dev, "Erase start\n");
 
     // Stop MCU
-    RegSetLByteValue(0x0FE6, 0x01); 
+    RegSetLByteValue(0x0FE6, 0x01);
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     nTrimByte1 = _DrvFwCtrlMsg22xxGetTrimByte1();
-    
+
     _DrvFwCtrlMsg22xxChangeVoltage();
 
     // Disable watchdog
@@ -9681,9 +9681,9 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     }
     else
     {
-        nMaxEraseTimes = 1;	
+        nMaxEraseTimes = 1;
     }
-    
+
     for (nEraseCount = 0; nEraseCount < nMaxEraseTimes; nEraseCount ++)
     {
         if (eEmemType == EMEM_ALL) // 48KB + 512Byte
@@ -9703,12 +9703,12 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             {
                 nRegData = RegGet16BitValue(0x1610); // Memory status
                 nRegData = nRegData & BIT1;
-            
+
                 DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                 if (nRegData == BIT1)
                 {
-                    break;		
+                    break;
                 }
 
                 mdelay(50);
@@ -9733,7 +9733,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
                 // Clear pce
                 RegSetLByteValue(0x1618, 0x80);
                 mdelay(10);
- 
+
                 if (i == 0)
                 {
                     RegSet16BitValue(0x1600, 0x0000);
@@ -9759,12 +9759,12 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
                 {
                     nRegData = RegGet16BitValue(0x1610); // Memory status
                     nRegData = nRegData & BIT1;
-            
+
                     DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                     if (nRegData == BIT1)
                     {
-                        break;		
+                        break;
                     }
                     mdelay(50);
 
@@ -9778,7 +9778,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
                         }
                     }
                 }
-            }   
+            }
         }
         else if (eEmemType == EMEM_INFO) // 512Byte
         {
@@ -9789,7 +9789,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             mdelay(10);
 
             RegSet16BitValue(0x1600, 0xC000);
-        
+
             // Sector erase
             RegSet16BitValue(0x160E, (RegGet16BitValue(0x160E) | BIT2));
 
@@ -9799,12 +9799,12 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             {
                 nRegData = RegGet16BitValue(0x1610); // Memory status
                 nRegData = nRegData & BIT1;
-            
+
                 DBG(&g_I2cClient->dev, "Wait erase done flag nRegData = 0x%x\n", nRegData);
 
                 if (nRegData == BIT1)
                 {
-                    break;		
+                    break;
                 }
                 mdelay(50);
 
@@ -9822,9 +9822,9 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     }
 
     _DrvFwCtrlMsg22xxRestoreVoltage();
-    
+
     DBG(&g_I2cClient->dev, "Erase end\n");
-    
+
     // Hold reset pin before program
     RegSetLByteValue(0x1E06, 0x00);
 
@@ -9835,28 +9835,28 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
     if (eEmemType == EMEM_ALL || eEmemType == EMEM_MAIN) // 48KB
     {
         DBG(&g_I2cClient->dev, "Program main block start\n");
-		
+
         // Program main block
         RegSet16BitValue(0x161A, 0xABBA);
         RegSet16BitValue(0x1618, (RegGet16BitValue(0x1618) | 0x80));
-		
+
         RegSet16BitValue(0x1600, 0x0000); // Set start address of main block
         RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01)); // Enable burst mode
-		
+
         // Program start
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x16;
         szDbBusTxData[2] = 0x02;
-		
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);    
-		
+
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);
+
         szDbBusTxData[0] = 0x20;
-		
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
-		
+
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
+
         nRemainSize = MSG22XX_FIRMWARE_MAIN_BLOCK_SIZE * 1024; //48KB
         index = 0;
-		    
+
         while (nRemainSize > 0)
         {
             if (nRemainSize > nSizePerWrite)
@@ -9867,20 +9867,20 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             {
                 nBlockSize = nRemainSize;
             }
-		
+
             szDbBusTxData[0] = 0x10;
             szDbBusTxData[1] = 0x16;
             szDbBusTxData[2] = 0x02;
-		
+
             nSize = 3;
-		
+
             for (i = 0; i < nBlockSize; i ++)
             {
                 szDbBusTxData[3+i] = _gOneDimenFwData[index*nSizePerWrite+i];
-                nSize ++; 
+                nSize ++;
             }
             index ++;
-		
+
             rc = IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], nSize);
             if (rc < 0)
             {
@@ -9888,19 +9888,19 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
 
                 goto UpdateEnd;
             }
-		        
+
             nRemainSize = nRemainSize - nBlockSize;
         }
-		
+
         // Program end
         szDbBusTxData[0] = 0x21;
-		
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
-		
+
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
+
         RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01)); // Clear burst mode
 
         DBG(&g_I2cClient->dev, "Wait main block write done flag\n");
-		
+
         nRegData = 0;
         nTimeOut = 0;
 
@@ -9909,12 +9909,12 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             // Polling 0x1610 is 0x0002
             nRegData = RegGet16BitValue(0x1610); // Memory status
             nRegData = nRegData & BIT1;
-    
+
             DBG(&g_I2cClient->dev, "Wait write done flag nRegData = 0x%x\n", nRegData);
 
             if (nRegData == BIT1)
             {
-                break;		
+                break;
             }
             mdelay(10);
 
@@ -9925,10 +9925,10 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
                 goto UpdateEnd;
             }
         }
-    
+
         DBG(&g_I2cClient->dev, "Program main block end\n");
     }
-    
+
     if (eEmemType == EMEM_ALL || eEmemType == EMEM_INFO) // 512 Byte
     {
         DBG(&g_I2cClient->dev, "Program info block start\n");
@@ -9945,15 +9945,15 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
         szDbBusTxData[1] = 0x16;
         szDbBusTxData[2] = 0x02;
 
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);    
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3);
 
         szDbBusTxData[0] = 0x20;
 
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
         nRemainSize = MSG22XX_FIRMWARE_INFO_BLOCK_SIZE; //512Byte
         index = 0;
-    
+
         while (nRemainSize > 0)
         {
             if (nRemainSize > nSizePerWrite)
@@ -9974,19 +9974,19 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             for (i = 0; i < nBlockSize; i ++)
             {
                 szDbBusTxData[3+i] = _gOneDimenFwData[(MSG22XX_FIRMWARE_MAIN_BLOCK_SIZE*1024)+(index*nSizePerWrite)+i];
-                nSize ++; 
+                nSize ++;
             }
             index ++;
 
             IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], nSize);
-        
+
             nRemainSize = nRemainSize - nBlockSize;
         }
 
         // Program end
         szDbBusTxData[0] = 0x21;
 
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);    
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 1);
 
         RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01)); // Clear burst mode
 
@@ -10000,12 +10000,12 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
             // Polling 0x1610 is 0x0002
             nRegData = RegGet16BitValue(0x1610); // Memory status
             nRegData = nRegData & BIT1;
-    
+
             DBG(&g_I2cClient->dev, "Wait write done flag nRegData = 0x%x\n", nRegData);
 
             if (nRegData == BIT1)
             {
-                break;		
+                break;
             }
             mdelay(10);
 
@@ -10019,7 +10019,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
 
         DBG(&g_I2cClient->dev, "Program info block end\n");
     }
-    
+
     UpdateEnd:
 
     if (eEmemType == EMEM_ALL || eEmemType == EMEM_MAIN)
@@ -10034,7 +10034,7 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
         DBG(&g_I2cClient->dev, "Get Main CRC from TP\n");
 
         nCrcMainTp = _DrvFwCtrlMsg22xxGetFirmwareCrcByHardware(EMEM_MAIN);
-    
+
         DBG(&g_I2cClient->dev, "nCrcMain=0x%x, nCrcMainTp=0x%x\n", nCrcMain, nCrcMainTp);
     }
 
@@ -10068,29 +10068,29 @@ static s32 _DrvFwCtrlMsg22xxUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmem
         if ((nCrcMainTp != nCrcMain) || (nCrcInfoTp != nCrcInfo))
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
     else if (eEmemType == EMEM_MAIN)
     {
         if (nCrcMainTp != nCrcMain)
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
     else if (eEmemType == EMEM_INFO)
     {
         if (nCrcInfoTp != nCrcInfo)
         {
             DBG(&g_I2cClient->dev, "Update FAILED\n");
-          
+
             return -1;
-        } 
+        }
     }
-    
+
     DBG(&g_I2cClient->dev, "Update SUCCESS\n");
 
     return 0;
@@ -10112,7 +10112,7 @@ void DrvFwCtrlVariableInitialize(void)
         FIRMWARE_MODE_RAW_DATA_MODE = MSG21XXA_FIRMWARE_MODE_RAW_DATA_MODE;
 
         g_FirmwareMode = FIRMWARE_MODE_DEMO_MODE;
-        
+
         DEMO_MODE_PACKET_LENGTH = SELF_DEMO_MODE_PACKET_LENGTH;
         DEBUG_MODE_PACKET_LENGTH = SELF_DEBUG_MODE_PACKET_LENGTH;
         MAX_TOUCH_NUM = SELF_MAX_TOUCH_NUM;
@@ -10129,7 +10129,7 @@ void DrvFwCtrlVariableInitialize(void)
         DEMO_MODE_PACKET_LENGTH = SELF_DEMO_MODE_PACKET_LENGTH;
         DEBUG_MODE_PACKET_LENGTH = SELF_DEBUG_MODE_PACKET_LENGTH;
         MAX_TOUCH_NUM = SELF_MAX_TOUCH_NUM;
-    }	
+    }
     else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         FIRMWARE_MODE_UNKNOWN_MODE = MSG26XXM_FIRMWARE_MODE_UNKNOWN_MODE;
@@ -10155,8 +10155,8 @@ void DrvFwCtrlVariableInitialize(void)
         DEMO_MODE_PACKET_LENGTH = MUTUAL_DEMO_MODE_PACKET_LENGTH;
         DEBUG_MODE_PACKET_LENGTH = MUTUAL_DEBUG_MODE_PACKET_LENGTH;
         MAX_TOUCH_NUM = MUTUAL_MAX_TOUCH_NUM;
-    }	
-}	
+    }
+}
 
 void DrvFwCtrlOptimizeCurrentConsumption(void)
 {
@@ -10165,7 +10165,7 @@ void DrvFwCtrlOptimizeCurrentConsumption(void)
 
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
     DBG(&g_I2cClient->dev, "g_ChipType = 0x%x\n", g_ChipType);
-    
+
 #ifdef CONFIG_ENABLE_GESTURE_WAKEUP
     if (g_GestureWakeupFlag == 1)
     {
@@ -10183,7 +10183,7 @@ void DrvFwCtrlOptimizeCurrentConsumption(void)
 #endif //CONFIG_ENABLE_DMA_IIC
 #endif //CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM
 
-        DrvPlatformLyrTouchDeviceResetHw(); 
+        DrvPlatformLyrTouchDeviceResetHw();
 
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
@@ -10198,28 +10198,28 @@ void DrvFwCtrlOptimizeCurrentConsumption(void)
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x11;
         szDbBusTxData[2] = 0xA0; //bank:0x11, addr:h0050
-    
+
         for (i = 0; i < 24; i ++)
         {
             szDbBusTxData[i+3] = 0x11;
         }
-		
+
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+24);  // Write 0x11 for reg 0x1150~0x115B
 
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x11;
         szDbBusTxData[2] = 0xB8; //bank:0x11, addr:h005C
-    
+
         for (i = 0; i < 6; i ++)
         {
             szDbBusTxData[i+3] = 0xFF;
         }
-		
-        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+6);   // Write 0xFF for reg 0x115C~0x115E 
-    
+
+        IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+6);   // Write 0xFF for reg 0x115C~0x115E
+
         // Clear burst mode
-        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01)); 
-    
+        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
+
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
         DbBusExitSerialDebugMode();
@@ -10236,7 +10236,7 @@ void DrvFwCtrlOptimizeCurrentConsumption(void)
 #endif //CONFIG_ENABLE_DMA_IIC
 #endif //CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM
 
-        DrvPlatformLyrTouchDeviceResetHw(); 
+        DrvPlatformLyrTouchDeviceResetHw();
 
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
@@ -10249,50 +10249,50 @@ void DrvFwCtrlOptimizeCurrentConsumption(void)
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x15;
         szDbBusTxData[2] = 0x20; //bank:0x15, addr:h0010
-    
+
         for (i = 0; i < 8; i ++)
         {
             szDbBusTxData[i+3] = 0xFF;
         }
-		
+
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+8);  // Write 0xFF for reg 0x1510~0x1513
 
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x15;
         szDbBusTxData[2] = 0x28; //bank:0x15, addr:h0014
-    
+
         for (i = 0; i < 16; i ++)
         {
             szDbBusTxData[i+3] = 0x00;
         }
-		
+
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+16);   // Write 0x00 for reg 0x1514~0x151B
-    
+
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x21;
         szDbBusTxData[2] = 0x40; //bank:0x21, addr:h0020
-    
+
         for (i = 0; i < 8; i ++)
         {
             szDbBusTxData[i+3] = 0xFF;
         }
-		
+
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+8);  // Write 0xFF for reg 0x2120~0x2123
 
         szDbBusTxData[0] = 0x10;
         szDbBusTxData[1] = 0x21;
         szDbBusTxData[2] = 0x20; //bank:0x21, addr:h0010
-    
+
         for (i = 0; i < 32; i ++)
         {
             szDbBusTxData[i+3] = 0xFF;
         }
-		
+
         IicWriteData(SLAVE_I2C_ID_DBBUS, &szDbBusTxData[0], 3+32);  // Write 0xFF for reg 0x2110~0x211F
 
         // Clear burst mode
         RegSetLByteValue(0x1608, 0x20);
-    
+
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
         DbBusExitSerialDebugMode();
@@ -10324,23 +10324,23 @@ u8 DrvFwCtrlGetChipType(void)
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K // used for MSG22xx only
     // Exit flash low power mode
-    RegSetLByteValue(0x1619, BIT1); 
+    RegSetLByteValue(0x1619, BIT1);
 
     // Change PIU clock to 48MHz
-    RegSetLByteValue(0x1E23, BIT6); 
+    RegSetLByteValue(0x1E23, BIT6);
 
     // Change mcu clock deglitch mux source
-    RegSetLByteValue(0x1E54, BIT0); 
+    RegSetLByteValue(0x1E54, BIT0);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
     // Disable watchdog
     RegSet16BitValue(0x3C60, 0xAA55);
-    
+
     nChipType = RegGet16BitValue(0x1ECC) & 0xFF;
 
-    if (nChipType != CHIP_TYPE_MSG21XX &&   // (0x01) 
-        nChipType != CHIP_TYPE_MSG21XXA &&  // (0x02) 
-        nChipType != CHIP_TYPE_MSG26XXM &&  // (0x03) 
+    if (nChipType != CHIP_TYPE_MSG21XX &&   // (0x01)
+        nChipType != CHIP_TYPE_MSG21XXA &&  // (0x02)
+        nChipType != CHIP_TYPE_MSG26XXM &&  // (0x03)
         nChipType != CHIP_TYPE_MSG22XX &&   // (0x7A)
         nChipType != CHIP_TYPE_MSG28XX)     // (0x85)
     {
@@ -10354,7 +10354,7 @@ u8 DrvFwCtrlGetChipType(void)
     DbBusExitSerialDebugMode();
 
     return nChipType;
-}	
+}
 
 void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajor, u16 *pMinor, u8 **ppVersion) // support MSG28xx only
 {
@@ -10363,7 +10363,7 @@ void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajo
 
     DBG(&g_I2cClient->dev, "*** %s() eEmemType = %d ***\n", __func__, eEmemType);
 
-    if (g_ChipType == CHIP_TYPE_MSG28XX)   
+    if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
@@ -10372,14 +10372,14 @@ void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajo
         mdelay(100);
 
         // Stop mcu
-        RegSetLByteValue(0x0FE6, 0x01); 
+        RegSetLByteValue(0x0FE6, 0x01);
 
         // Stop watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
 
         if (eEmemType == EMEM_MAIN) // Read SW ID from main block
         {
-            _DrvFwCtrlMsg28xxReadEFlashStart(0x7FFD, EMEM_MAIN); 
+            _DrvFwCtrlMsg28xxReadEFlashStart(0x7FFD, EMEM_MAIN);
             nReadAddr = 0x7FFD;
         }
         else if (eEmemType == EMEM_INFO) // Read SW ID from info block
@@ -10395,7 +10395,7 @@ void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajo
         /*
           Ex. Major in Main Block :
               Major low byte at address 0x7FFD
-          
+
               Major in Info Block :
               Major low byte at address 0x81FB
         */
@@ -10407,7 +10407,7 @@ void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajo
 
         DBG(&g_I2cClient->dev, "*** major = %d ***\n", *pMajor);
         DBG(&g_I2cClient->dev, "*** minor = %d ***\n", *pMinor);
-    
+
         if (*ppVersion == NULL)
         {
             *ppVersion = kzalloc(sizeof(u8)*6, GFP_KERNEL);
@@ -10419,7 +10419,7 @@ void DrvFwCtrlGetCustomerFirmwareVersionByDbBus(EmemType_e eEmemType, u16 *pMajo
         DbBusNotStopMCU();
         DbBusExitSerialDebugMode();
     }
-}	
+}
 
 void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersion)
 {
@@ -10434,7 +10434,7 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
         szDbBusTxData[1] = 0x00;
 
         if (g_ChipType == CHIP_TYPE_MSG21XXA)
-        {    
+        {
             szDbBusTxData[2] = 0x2A;
         }
         else if (g_ChipType == CHIP_TYPE_MSG21XX)
@@ -10465,42 +10465,42 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
         mutex_lock(&g_Mutex);
 
         DrvPlatformLyrTouchDeviceResetHw();
-    
+
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
         DbBusIICUseBus();
         DbBusIICReshape();
         mdelay(100);
-        
+
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
         // Stop MCU
-        RegSetLByteValue(0x0FE6, 0x01); 
-    
+        RegSetLByteValue(0x0FE6, 0x01);
+
         // Exit flash low power mode
-        RegSetLByteValue(0x1619, BIT1); 
+        RegSetLByteValue(0x1619, BIT1);
 
         // Change PIU clock to 48MHz
-        RegSetLByteValue(0x1E23, BIT6); 
+        RegSetLByteValue(0x1E23, BIT6);
 
         // Change mcu clock deglitch mux source
-        RegSetLByteValue(0x1E54, BIT0); 
+        RegSetLByteValue(0x1E54, BIT0);
 #else
         // Stop MCU
-        RegSetLByteValue(0x0FE6, 0x01); 
+        RegSetLByteValue(0x0FE6, 0x01);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
         // Stop watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
 
         // RIU password
-        RegSet16BitValue(0x161A, 0xABBA); 
+        RegSet16BitValue(0x161A, 0xABBA);
 
         RegSet16BitValue(0x1600, 0xBFF4); // Set start address for customer firmware version on main block
-    
+
         // Enable burst mode
 //        RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01));
 
-        RegSetLByteValue(0x160E, 0x01); 
+        RegSetLByteValue(0x160E, 0x01);
 
         nRegData1 = RegGet16BitValue(0x1604);
         nRegData2 = RegGet16BitValue(0x1606);
@@ -10509,12 +10509,12 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
         *pMinor = (((nRegData2 >> 8) & 0xFF) << 8) + (nRegData2 & 0xFF);
 
         // Clear burst mode
-//        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));      
+//        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
 
-        RegSet16BitValue(0x1600, 0x0000); 
+        RegSet16BitValue(0x1600, 0x0000);
 
         // Clear RIU password
-        RegSet16BitValue(0x161A, 0x0000); 
+        RegSet16BitValue(0x161A, 0x0000);
 
         DbBusIICNotUseBus();
         DbBusNotStopMCU();
@@ -10524,7 +10524,7 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
 
         mutex_unlock(&g_Mutex);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         u8 szDbBusTxData[3] = {0};
         u8 szDbBusRxData[4] = {0};
@@ -10532,7 +10532,7 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
         szDbBusTxData[0] = 0x53;
         szDbBusTxData[1] = 0x00;
         szDbBusTxData[2] = 0x2A;
-    
+
         mutex_lock(&g_Mutex);
 
         DrvPlatformLyrTouchDeviceResetHw();
@@ -10549,8 +10549,8 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
 
         *pMajor = (szDbBusRxData[1]<<8) + szDbBusRxData[0];
         *pMinor = (szDbBusRxData[3]<<8) + szDbBusRxData[2];
-    }    
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)   
+    }
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
         u8 szDbBusTxData[3] = {0};
         u8 szDbBusRxData[4] = {0};
@@ -10558,7 +10558,7 @@ void DrvFwCtrlGetCustomerFirmwareVersion(u16 *pMajor, u16 *pMinor, u8 **ppVersio
         szDbBusTxData[0] = 0x03;
 
         mutex_lock(&g_Mutex);
-    
+
         DrvPlatformLyrTouchDeviceResetHw();
 
         IicWriteData(SLAVE_I2C_ID_DWI2C, &szDbBusTxData[0], 1);
@@ -10590,7 +10590,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
 {
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    if (g_ChipType == CHIP_TYPE_MSG22XX) 
+    if (g_ChipType == CHIP_TYPE_MSG22XX)
     {
         u32 i;
         u16 nRegData1, nRegData2;
@@ -10599,7 +10599,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
         mutex_lock(&g_Mutex);
 
         DrvPlatformLyrTouchDeviceResetHw();
-    
+
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
         DbBusIICUseBus();
@@ -10608,45 +10608,45 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
 
 #ifdef CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
         // Stop MCU
-        RegSetLByteValue(0x0FE6, 0x01); 
-    
+        RegSetLByteValue(0x0FE6, 0x01);
+
         // Exit flash low power mode
-        RegSetLByteValue(0x1619, BIT1); 
+        RegSetLByteValue(0x1619, BIT1);
 
         // Change PIU clock to 48MHz
-        RegSetLByteValue(0x1E23, BIT6); 
+        RegSetLByteValue(0x1E23, BIT6);
 
         // Change mcu clock deglitch mux source
-        RegSetLByteValue(0x1E54, BIT0); 
+        RegSetLByteValue(0x1E54, BIT0);
 #else
         // Stop MCU
-        RegSetLByteValue(0x0FE6, 0x01); 
+        RegSetLByteValue(0x0FE6, 0x01);
 #endif //CONFIG_ENABLE_UPDATE_FIRMWARE_WITH_SUPPORT_I2C_SPEED_400K
 
         // Stop watchdog
         RegSet16BitValue(0x3C60, 0xAA55);
 
         // RIU password
-        RegSet16BitValue(0x161A, 0xABBA); 
+        RegSet16BitValue(0x161A, 0xABBA);
 
         RegSet16BitValue(0x1600, 0xC1F2); // Set start address for platform firmware version on info block(Actually, start reading from 0xC1F0)
-    
+
         // Enable burst mode
         RegSet16BitValue(0x160C, (RegGet16BitValue(0x160C) | 0x01));
 
         for (i = 0; i < 3; i ++)
         {
-            RegSetLByteValue(0x160E, 0x01); 
+            RegSetLByteValue(0x160E, 0x01);
 
             nRegData1 = RegGet16BitValue(0x1604);
             nRegData2 = RegGet16BitValue(0x1606);
 
             szDbBusRxData[i*4+0] = (nRegData1 & 0xFF);
             szDbBusRxData[i*4+1] = ((nRegData1 >> 8 ) & 0xFF);
-            
+
 //            DBG(&g_I2cClient->dev, "szDbBusRxData[%d] = 0x%x , %c \n", i*4+0, szDbBusRxData[i*4+0], szDbBusRxData[i*4+0]); // add for debug
 //            DBG(&g_I2cClient->dev, "szDbBusRxData[%d] = 0x%x , %c \n", i*4+1, szDbBusRxData[i*4+1], szDbBusRxData[i*4+1]); // add for debug
-            
+
             szDbBusRxData[i*4+2] = (nRegData2 & 0xFF);
             szDbBusRxData[i*4+3] = ((nRegData2 >> 8 ) & 0xFF);
 
@@ -10655,18 +10655,18 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
         }
 
         // Clear burst mode
-        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));      
+        RegSet16BitValue(0x160C, RegGet16BitValue(0x160C) & (~0x01));
 
-        RegSet16BitValue(0x1600, 0x0000); 
+        RegSet16BitValue(0x1600, 0x0000);
 
         // Clear RIU password
-        RegSet16BitValue(0x161A, 0x0000); 
+        RegSet16BitValue(0x161A, 0x0000);
 
         if (*ppVersion == NULL)
         {
             *ppVersion = kzalloc(sizeof(u8)*10, GFP_KERNEL);
         }
-    
+
         sprintf(*ppVersion, "%c%c%c%c%c%c%c%c%c%c", szDbBusRxData[2], szDbBusRxData[3], szDbBusRxData[4],
             szDbBusRxData[5], szDbBusRxData[6], szDbBusRxData[7], szDbBusRxData[8], szDbBusRxData[9], szDbBusRxData[10], szDbBusRxData[11]);
 
@@ -10678,7 +10678,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
 
         mutex_unlock(&g_Mutex);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         u32 i;
         u16 nRegData = 0;
@@ -10709,7 +10709,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
 
         // Start mcu
         RegSetLByteValue(0x0FE6, 0x00); //bank:mheg5, addr:h0073
-    
+
         mdelay(100);
 
         // Polling 0x3CE4 is 0x5B58
@@ -10739,7 +10739,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
         {
             *ppVersion = kzalloc(sizeof(u8)*16, GFP_KERNEL);
         }
-    
+
         sprintf(*ppVersion, "%.16s", szDbBusRxData);
 
         DbBusIICNotUseBus();
@@ -10751,15 +10751,15 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
 
         mutex_unlock(&g_Mutex);
     }
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)   
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
         u8 szDbBusTxData[1] = {0};
         u8 szDbBusRxData[10] = {0};
-    
+
         szDbBusTxData[0] = 0x04;
 
         mutex_lock(&g_Mutex);
-    
+
         DrvPlatformLyrTouchDeviceResetHw();
 
 #ifdef CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM
@@ -10772,7 +10772,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
         IicReadData(SLAVE_I2C_ID_DWI2C, &szDbBusRxData[0], 10);
 
         mutex_unlock(&g_Mutex);
-           
+
         DBG(&g_I2cClient->dev, "szDbBusRxData[0] = 0x%x , %c \n", szDbBusRxData[0], szDbBusRxData[0]); // add for debug
         DBG(&g_I2cClient->dev, "szDbBusRxData[1] = 0x%x , %c \n", szDbBusRxData[1], szDbBusRxData[1]); // add for debug
         DBG(&g_I2cClient->dev, "szDbBusRxData[2] = 0x%x , %c \n", szDbBusRxData[2], szDbBusRxData[2]); // add for debug
@@ -10797,7 +10797,7 @@ void DrvFwCtrlGetPlatformFirmwareVersion(u8 **ppVersion)
         {
             *ppVersion = kzalloc(sizeof(u8)*10, GFP_KERNEL);
         }
-    
+
         sprintf(*ppVersion, "%s", "N/A");
     }
 
@@ -10809,15 +10809,15 @@ s32 DrvFwCtrlUpdateFirmware(u8 szFwData[][1024], EmemType_e eEmemType)
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
     return _DrvFwCtrlUpdateFirmwareCash(szFwData, eEmemType);
-}	
+}
 
 s32 DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
 {
     s32 nRetVal = -1;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)    
+    if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
     {
         nRetVal = _DrvFwCtrlUpdateFirmwareBySdCard(pFilePath);
     }
@@ -10825,19 +10825,19 @@ s32 DrvFwCtrlUpdateFirmwareBySdCard(const char *pFilePath)
     {
         DBG(&g_I2cClient->dev, "This chip type (0x%x) does not support update firmware by sd card\n", g_ChipType);
     }
-    
+
     return nRetVal;
-}	
+}
 
 //------------------------------------------------------------------------------//
 
 u16 DrvFwCtrlGetFirmwareMode(void) // use for MSG26XXM only
 {
     u16 nMode = 0;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
@@ -10854,7 +10854,7 @@ u16 DrvFwCtrlGetFirmwareMode(void) // use for MSG26XXM only
         DbBusExitSerialDebugMode();
         mdelay(100);
     }
-    
+
     return nMode;
 }
 
@@ -10862,9 +10862,9 @@ u16 DrvFwCtrlChangeFirmwareMode(u16 nMode)
 {
     DBG(&g_I2cClient->dev, "*** %s() *** nMode = 0x%x\n", __func__, nMode);
 
-    if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
-        DrvPlatformLyrTouchDeviceResetHw(); 
+        DrvPlatformLyrTouchDeviceResetHw();
 
         DbBusEnterSerialDebugMode();
         DbBusStopMCU();
@@ -10872,7 +10872,7 @@ u16 DrvFwCtrlChangeFirmwareMode(u16 nMode)
         DbBusIICReshape();
 
         RegSet16BitValue(0x3CF4, nMode); //bank:reg_PIU_MISC0, addr:h007a
-        nMode = RegGet16BitValue(0x3CF4); 
+        nMode = RegGet16BitValue(0x3CF4);
 
         DBG(&g_I2cClient->dev, "firmware mode = 0x%x\n", nMode);
 
@@ -10880,13 +10880,13 @@ u16 DrvFwCtrlChangeFirmwareMode(u16 nMode)
         DbBusNotStopMCU();
         DbBusExitSerialDebugMode();
     }
-    else if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG28XX)  
+    else if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX || g_ChipType == CHIP_TYPE_MSG28XX)
     {
         u8 szDbBusTxData[2] = {0};
         u32 i = 0;
         s32 rc;
 
-        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send change firmware mode i2c command to firmware. 
+        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send change firmware mode i2c command to firmware.
 
         szDbBusTxData[0] = 0x02;
         szDbBusTxData[1] = (u8)nMode;
@@ -10926,15 +10926,15 @@ void DrvFwCtrlSelfGetFirmwareInfo(SelfFirmwareInfo_t *pInfo) // for MSG21xxA/MSG
     u8 szDbBusRxData[8] = {0};
     u32 i = 0;
     s32 rc;
-    
+
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware. 
+    _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware.
 
     szDbBusTxData[0] = 0x01;
 
     mutex_lock(&g_Mutex);
-    
+
     while (i < 5)
     {
         mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
@@ -10959,16 +10959,16 @@ void DrvFwCtrlSelfGetFirmwareInfo(SelfFirmwareInfo_t *pInfo) // for MSG21xxA/MSG
     }
 
     mutex_unlock(&g_Mutex);
-    
+
     if ((szDbBusRxData[1] & 0x80) == 0x80)
     {
-        pInfo->nIsCanChangeFirmwareMode = 0;	
+        pInfo->nIsCanChangeFirmwareMode = 0;
     }
     else
     {
-        pInfo->nIsCanChangeFirmwareMode = 1;	
+        pInfo->nIsCanChangeFirmwareMode = 1;
     }
-    
+
     pInfo->nFirmwareMode = szDbBusRxData[1] & 0x7F;
     pInfo->nLogModePacketHeader = szDbBusRxData[2];
     pInfo->nLogModePacketLength = (szDbBusRxData[3]<<8) + szDbBusRxData[4];
@@ -10982,21 +10982,21 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 {
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
 
-    if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
         u8 szDbBusTxData[3] = {0};
         u8 szDbBusRxData[8] = {0};
         u32 i = 0;
         s32 rc;
 
-        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware. 
+        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware.
 
         szDbBusTxData[0] = 0x53;
         szDbBusTxData[1] = 0x00;
         szDbBusTxData[2] = 0x48;
 
         mutex_lock(&g_Mutex);
-    
+
         while (i < 5)
         {
             mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
@@ -11039,7 +11039,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 //            *pDriveLineNumber = AnaGetMutualSubframeNum();
 //            *pSenseLineNumber = AnaGetMutualChannelNum();
 
-/*        
+/*
             DbBusIICNotUseBus();
             DbBusNotStopMCU();
             DbBusExitSerialDebugMode();
@@ -11056,7 +11056,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 //            pInfo->nSd = szDbBusRxData[1];
 //            pInfo->nSs = szDbBusRxData[2];
         }
-        else if (szDbBusRxData[0] == 0xA7 && szDbBusRxData[3] == PACKET_TYPE_TOOTH_PATTERN) 
+        else if (szDbBusRxData[0] == 0xA7 && szDbBusRxData[3] == PACKET_TYPE_TOOTH_PATTERN)
         {
             DBG(&g_I2cClient->dev, "*** Debug Packet Header is 0xA7 ***\n");
 
@@ -11072,7 +11072,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
         {
             if (pInfo->nMy != 0 && pInfo->nMx != 0)
             {
-                // for parsing debug mode packet 0xA5 
+                // for parsing debug mode packet 0xA5
                 pInfo->nLogModePacketLength = 1+1+1+1+10*3+pInfo->nMx*pInfo->nMy*2+1;
             }
             else
@@ -11084,7 +11084,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
         {
             if (pInfo->nMy != 0 && pInfo->nMx != 0)
             {
-                // for parsing debug mode packet 0xAB 
+                // for parsing debug mode packet 0xAB
                 pInfo->nLogModePacketLength = 1+1+1+1+10*3+pInfo->nMy*pInfo->nMx*2+pInfo->nMy*2+pInfo->nMx*2+2*2+8*2+1;
             }
             else
@@ -11096,7 +11096,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
         {
             if (pInfo->nMy != 0 && pInfo->nMx != 0 && pInfo->nSd != 0 && pInfo->nSs != 0)
             {
-                // for parsing debug mode packet 0xA7  
+                // for parsing debug mode packet 0xA7
                 pInfo->nLogModePacketLength = 1+1+1+1+1+10*3+pInfo->nMy*pInfo->nMx*2+pInfo->nSd*2+pInfo->nSs*2+10*2+1;
             }
             else
@@ -11108,7 +11108,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
         {
             DBG(&g_I2cClient->dev, "Undefined debug mode packet header = 0x%x\n", pInfo->nLogModePacketHeader);
         }
-    
+
         DBG(&g_I2cClient->dev, "*** debug mode packet header = 0x%x ***\n", pInfo->nLogModePacketHeader);
         DBG(&g_I2cClient->dev, "*** debug mode packet length = %d ***\n", pInfo->nLogModePacketLength);
         DBG(&g_I2cClient->dev, "*** Type = 0x%x ***\n", pInfo->nType);
@@ -11119,20 +11119,20 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 
         _gIsDisableFinagerTouch = 0;
     }
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)   
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
         u8 szDbBusTxData[1] = {0};
         u8 szDbBusRxData[10] = {0};
         u32 i = 0;
         s32 rc;
-    
-        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware. 
-        
+
+        _gIsDisableFinagerTouch = 1; // Disable finger touch ISR handling temporarily for device driver can send get firmware info i2c command to firmware.
+
         szDbBusTxData[0] = 0x01;
 
         mutex_lock(&g_Mutex);
         DBG(&g_I2cClient->dev, "*** %s() *** mutex_lock(&g_Mutex)\n", __func__);  // add for debug
-    
+
 #ifdef CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM
 #ifdef CONFIG_ENABLE_DMA_IIC
         DmaReset();
@@ -11147,7 +11147,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
             {
                 DBG(&g_I2cClient->dev, "Get firmware info IicWriteData() success\n");
             }
-            
+
             mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
             rc = IicReadData(SLAVE_I2C_ID_DWI2C, &szDbBusRxData[0], 10);
             if (rc > 0)
@@ -11173,15 +11173,15 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 
         DBG(&g_I2cClient->dev, "*** %s() *** mutex_unlock(&g_Mutex)\n", __func__);  // add for debug
         mutex_unlock(&g_Mutex);
-    
+
         // Add protection for incorrect firmware info check
         if ((szDbBusRxData[1] == FIRMWARE_MODE_DEBUG_MODE && szDbBusRxData[2] == 0xA7 && szDbBusRxData[5] == PACKET_TYPE_TOOTH_PATTERN) || (szDbBusRxData[1] == FIRMWARE_MODE_DEMO_MODE && szDbBusRxData[2] == 0x5A))
         {
             pInfo->nFirmwareMode = szDbBusRxData[1];
             DBG(&g_I2cClient->dev, "pInfo->nFirmwareMode = 0x%x\n", pInfo->nFirmwareMode);
 
-            pInfo->nLogModePacketHeader = szDbBusRxData[2]; 
-            pInfo->nLogModePacketLength = (szDbBusRxData[3]<<8) + szDbBusRxData[4]; 
+            pInfo->nLogModePacketHeader = szDbBusRxData[2];
+            pInfo->nLogModePacketLength = (szDbBusRxData[3]<<8) + szDbBusRxData[4];
             pInfo->nType = szDbBusRxData[5];
             pInfo->nMy = szDbBusRxData[6];
             pInfo->nMx = szDbBusRxData[7];
@@ -11199,7 +11199,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
         else
         {
             DBG(&g_I2cClient->dev, "Firmware info before correcting :\n");
-            
+
             DBG(&g_I2cClient->dev, "FirmwareMode = 0x%x\n", szDbBusRxData[1]);
             DBG(&g_I2cClient->dev, "LogModePacketHeader = 0x%x\n", szDbBusRxData[2]);
             DBG(&g_I2cClient->dev, "LogModePacketLength = %d\n", (szDbBusRxData[3]<<8) + szDbBusRxData[4]);
@@ -11211,8 +11211,8 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
 
             // Set firmware mode to demo mode(default)
             pInfo->nFirmwareMode = FIRMWARE_MODE_DEMO_MODE;
-            pInfo->nLogModePacketHeader = 0x5A; 
-            pInfo->nLogModePacketLength = DEMO_MODE_PACKET_LENGTH; 
+            pInfo->nLogModePacketHeader = 0x5A;
+            pInfo->nLogModePacketLength = DEMO_MODE_PACKET_LENGTH;
             pInfo->nType = 0;
             pInfo->nMy = 0;
             pInfo->nMx = 0;
@@ -11230,7 +11230,7 @@ void DrvFwCtrlMutualGetFirmwareInfo(MutualFirmwareInfo_t *pInfo) // for MSG26xxM
             DBG(&g_I2cClient->dev, "pInfo->nSd = %d\n", pInfo->nSd);
             DBG(&g_I2cClient->dev, "pInfo->nSs = %d\n", pInfo->nSs);
         }
-        
+
         _gIsDisableFinagerTouch = 0;
     }
 }
@@ -11244,7 +11244,7 @@ void DrvFwCtrlRestoreFirmwareModeToLogDataMode(void)
         if (g_IsSwitchModeByAPK == 1)
         {
             SelfFirmwareInfo_t tInfo;
-    
+
             memset(&tInfo, 0x0, sizeof(SelfFirmwareInfo_t));
 
             DrvFwCtrlSelfGetFirmwareInfo(&tInfo);
@@ -11288,7 +11288,7 @@ void DrvFwCtrlRestoreFirmwareModeToLogDataMode(void)
         if (g_IsSwitchModeByAPK == 1)
         {
             MutualFirmwareInfo_t tInfo;
-    
+
             memset(&tInfo, 0x0, sizeof(MutualFirmwareInfo_t));
 
             DrvFwCtrlMutualGetFirmwareInfo(&tInfo);
@@ -11306,7 +11306,7 @@ void DrvFwCtrlRestoreFirmwareModeToLogDataMode(void)
             }
         }
     }
-}	
+}
 
 //------------------------------------------------------------------------------//
 
@@ -11314,37 +11314,37 @@ void DrvFwCtrlRestoreFirmwareModeToLogDataMode(void)
 void DrvFwCtrlCheckFirmwareUpdateBySwId(void)
 {
     DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);
-    printk("zhangjuntest--->>>g_ChipType == %d\n",g_ChipType);
-    if (g_ChipType == CHIP_TYPE_MSG21XXA)   
+    printk("g_ChipType == %d\n",g_ChipType);
+    if (g_ChipType == CHIP_TYPE_MSG21XXA)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
         _DrvFwCtrlMsg21xxaCheckFirmwareUpdateBySwId();
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG21XXA
     }
-    else if (g_ChipType == CHIP_TYPE_MSG22XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG22XX)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG22XX
         _DrvFwCtrlMsg22xxCheckFirmwareUpdateBySwId();
-#endif //CONFIG_ENABLE_CHIP_TYPE_MSG22XX        
+#endif //CONFIG_ENABLE_CHIP_TYPE_MSG22XX
     }
-    else if (g_ChipType == CHIP_TYPE_MSG26XXM)   
+    else if (g_ChipType == CHIP_TYPE_MSG26XXM)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
         _DrvFwCtrlMsg26xxmCheckFirmwareUpdateBySwId();
-#endif //CONFIG_ENABLE_CHIP_TYPE_MSG26XXM        
+#endif //CONFIG_ENABLE_CHIP_TYPE_MSG26XXM
     }
-    else if (g_ChipType == CHIP_TYPE_MSG28XX)    
+    else if (g_ChipType == CHIP_TYPE_MSG28XX)
     {
 #ifdef CONFIG_ENABLE_CHIP_TYPE_MSG28XX
         _DrvFwCtrlMsg28xxCheckFirmwareUpdateBySwId();
 #endif //CONFIG_ENABLE_CHIP_TYPE_MSG28XX
-	printk("zhangjuntest--->>>g_ChipType == CHIP_TYPE_MSG28XX\n");
+	printk("g_ChipType == CHIP_TYPE_MSG28XX\n");
     }
     else
     {
         DBG(&g_I2cClient->dev, "This chip type (0x%x) does not support update firmware by sw id\n", g_ChipType);
     }
-}	
+}
 #endif //CONFIG_UPDATE_FIRMWARE_BY_SW_ID
 
 //------------------------------------------------------------------------------//
@@ -11462,29 +11462,29 @@ s32 DrvFwCtrlEnableProximity(void)
 
     szDbBusTxData[0] = 0x52;
     szDbBusTxData[1] = 0x00;
-    
+
     if (g_ChipType == CHIP_TYPE_MSG21XX)
     {
-        szDbBusTxData[2] = 0x62; 
+        szDbBusTxData[2] = 0x62;
     }
     else if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX)
     {
-        szDbBusTxData[2] = 0x4a; 
+        szDbBusTxData[2] = 0x4a;
     }
     else if (g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
     {
-        szDbBusTxData[2] = 0x47; 
+        szDbBusTxData[2] = 0x47;
     }
     else
     {
         DBG(&g_I2cClient->dev, "*** Un-recognized chip type = 0x%x ***\n", g_ChipType);
         return -1;
     }
-    
+
     szDbBusTxData[3] = 0xa0;
-    
+
     mutex_lock(&g_Mutex);
-    
+
     mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
     rc = IicWriteData(SLAVE_I2C_ID_DWI2C, &szDbBusTxData[0], 4);
     if (rc > 0)
@@ -11499,7 +11499,7 @@ s32 DrvFwCtrlEnableProximity(void)
     }
 
     mutex_unlock(&g_Mutex);
-    	
+
     return rc;
 }
 
@@ -11515,15 +11515,15 @@ s32 DrvFwCtrlDisableProximity(void)
 
     if (g_ChipType == CHIP_TYPE_MSG21XX)
     {
-        szDbBusTxData[2] = 0x62; 
+        szDbBusTxData[2] = 0x62;
     }
     else if (g_ChipType == CHIP_TYPE_MSG21XXA || g_ChipType == CHIP_TYPE_MSG22XX)
     {
-        szDbBusTxData[2] = 0x4a; 
+        szDbBusTxData[2] = 0x4a;
     }
     else if (g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
     {
-        szDbBusTxData[2] = 0x47; 
+        szDbBusTxData[2] = 0x47;
     }
     else
     {
@@ -11532,7 +11532,7 @@ s32 DrvFwCtrlDisableProximity(void)
     }
 
     szDbBusTxData[3] = 0xa1;
-    
+
     mutex_lock(&g_Mutex);
 
     mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
@@ -11661,7 +11661,7 @@ void DrvFwCtrlGetGloveInfo(u8 *pGloveMode) // used for MSG28xx only
         {
             DBG(&g_I2cClient->dev, "Get glove info IicWriteData() success\n");
         }
-        
+
         mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
         rc = IicReadData(SLAVE_I2C_ID_DWI2C, &szDbBusRxData[0], 1);
         if (rc > 0)
@@ -11688,7 +11688,7 @@ void DrvFwCtrlGetGloveInfo(u8 *pGloveMode) // used for MSG28xx only
     mutex_unlock(&g_Mutex);
 
     *pGloveMode = szDbBusRxData[0];
-    
+
     DBG(&g_I2cClient->dev, "pGloveMode = 0x%x\n", *pGloveMode);
 
     _gIsDisableFinagerTouch = 0;
@@ -11710,7 +11710,7 @@ void DrvFwCtrlChargerDetection(u8 nChargerStatus)
     DBG(&g_I2cClient->dev, "_gChargerPlugIn = %d, nChargerStatus = %d, g_ForceUpdate = %d\n", _gChargerPlugIn, nChargerStatus, g_ForceUpdate);
 
     mutex_lock(&g_Mutex);
-    
+
     szDbBusTxData[0] = 0x09;
 
     if (nChargerStatus) // charger plug in
@@ -11718,7 +11718,7 @@ void DrvFwCtrlChargerDetection(u8 nChargerStatus)
         if (_gChargerPlugIn == 0 || g_ForceUpdate == 1)
         {
           	szDbBusTxData[1] = 0xA5;
-            
+
             while (i < 5)
             {
                 mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
@@ -11746,7 +11746,7 @@ void DrvFwCtrlChargerDetection(u8 nChargerStatus)
         if (_gChargerPlugIn == 1 || g_ForceUpdate == 1)
         {
           	szDbBusTxData[1] = 0x5A;
-            
+
             while (i < 5)
             {
                 mdelay(I2C_WRITE_COMMAND_DELAY_FOR_FIRMWARE);
@@ -11758,7 +11758,7 @@ void DrvFwCtrlChargerDetection(u8 nChargerStatus)
                     DBG(&g_I2cClient->dev, "Update status for charger plug out success.\n");
                     break;
                 }
-                
+
                 i ++;
             }
             if (i == 5)
@@ -11768,10 +11768,10 @@ void DrvFwCtrlChargerDetection(u8 nChargerStatus)
 
             g_ForceUpdate = 0; // Clear flag after force update charger status
         }
-    }	
+    }
 
     mutex_unlock(&g_Mutex);
-}	
+}
 
 #endif //CONFIG_ENABLE_CHARGER_DETECTION
 
@@ -11782,7 +11782,7 @@ static s32 _DrvFwCtrlReadFingerTouchData(u8 *pPacket, u16 nReportPacketLength)
     s32 rc;
 
     if (IS_FIRMWARE_DATA_LOG_ENABLED)
-    {	
+    {
         if (g_FirmwareMode == FIRMWARE_MODE_DEMO_MODE)
         {
             rc = IicReadData(SLAVE_I2C_ID_DWI2C, &pPacket[0], nReportPacketLength);
@@ -11827,7 +11827,7 @@ static s32 _DrvFwCtrlReadFingerTouchData(u8 *pPacket, u16 nReportPacketLength)
                 DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
                 return -1;
             }
-#endif //CONFIG_ENABLE_SEGMENT_READ_FINGER_TOUCH_DATA    		
+#endif //CONFIG_ENABLE_SEGMENT_READ_FINGER_TOUCH_DATA
         }
         else
         {
@@ -11836,14 +11836,14 @@ static s32 _DrvFwCtrlReadFingerTouchData(u8 *pPacket, u16 nReportPacketLength)
         }
     }
     else
-    {	
+    {
         rc = IicReadData(SLAVE_I2C_ID_DWI2C, &pPacket[0], nReportPacketLength);
         if (rc < 0)
         {
             DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
             return -1;
         }
-    } //IS_FIRMWARE_DATA_LOG_ENABLED	
+    } //IS_FIRMWARE_DATA_LOG_ENABLED
 
     return 0;
 }
@@ -11863,20 +11863,20 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
     s32 rc;
 
 //    DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);  // add for debug
-    
+
     if (_gIsDisableFinagerTouch == 1)
     {
         DBG(&g_I2cClient->dev, "Skip finger touch for handling get firmware info or change firmware mode\n");
         return;
     }
-    
+
     mutex_lock(&g_Mutex);
 //    DBG(&g_I2cClient->dev, "*** %s() *** mutex_lock(&g_Mutex)\n", __func__);  // add for debug
 
     memset(&tInfo, 0x0, sizeof(SelfTouchInfo_t));
 
     if (IS_FIRMWARE_DATA_LOG_ENABLED)
-    { 	
+    {
         if (g_FirmwareMode == FIRMWARE_MODE_DEMO_MODE)
         {
             DBG(&g_I2cClient->dev, "FIRMWARE_MODE_DEMO_MODE\n");
@@ -11891,7 +11891,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
             if (g_SelfFirmwareInfo.nLogModePacketHeader != 0x62)
             {
                 DBG(&g_I2cClient->dev, "WRONG DEBUG MODE HEADER : 0x%x\n", g_SelfFirmwareInfo.nLogModePacketHeader);
-                goto TouchHandleEnd;		
+                goto TouchHandleEnd;
             }
 
             nReportPacketLength = g_SelfFirmwareInfo.nLogModePacketLength;
@@ -11904,7 +11904,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
             if (g_SelfFirmwareInfo.nLogModePacketHeader != 0x62)
             {
                 DBG(&g_I2cClient->dev, "WRONG RAW DATA MODE HEADER : 0x%x\n", g_SelfFirmwareInfo.nLogModePacketHeader);
-                goto TouchHandleEnd;		
+                goto TouchHandleEnd;
             }
 
             nReportPacketLength = g_SelfFirmwareInfo.nLogModePacketLength;
@@ -11913,7 +11913,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
         else
         {
             DBG(&g_I2cClient->dev, "WRONG FIRMWARE MODE : 0x%x\n", g_FirmwareMode);
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else
@@ -11939,13 +11939,13 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
         else
         {
             DBG(&g_I2cClient->dev, "This chip type does not support gesture debug mode.\n");
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else if (g_GestureWakeupFlag == 1)
     {
         DBG(&g_I2cClient->dev, "Set gesture wakeup packet length, g_ChipType=0x%x\n", g_ChipType);
-      
+
         if (g_ChipType == CHIP_TYPE_MSG22XX)
         {
 #ifdef CONFIG_ENABLE_GESTURE_INFORMATION_MODE
@@ -11972,7 +11972,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
     if (g_GestureWakeupFlag == 1)
     {
         DBG(&g_I2cClient->dev, "Set gesture wakeup packet length, g_ChipType=0x%x\n", g_ChipType);
-        
+
         if (g_ChipType == CHIP_TYPE_MSG22XX)
         {
 #ifdef CONFIG_ENABLE_GESTURE_INFORMATION_MODE
@@ -11982,7 +11982,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
 #endif //CONFIG_ENABLE_GESTURE_INFORMATION_MODE
 
             pPacket = _gGestureWakeupPacket;
-        } 
+        }
         else if (g_ChipType == CHIP_TYPE_MSG21XXA)
         {
             nReportPacketLength = DEMO_MODE_PACKET_LENGTH;
@@ -11991,7 +11991,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
         else
         {
             DBG(&g_I2cClient->dev, "This chip type does not support gesture wakeup.\n");
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
 #endif //CONFIG_ENABLE_GESTURE_DEBUG_MODE
@@ -12003,24 +12003,24 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
     if (g_GestureWakeupFlag == 1)
     {
         u32 i = 0
-        
+
         while (i < 5)
         {
             mdelay(50);
 
             rc = IicReadData(SLAVE_I2C_ID_DWI2C, &pPacket[0], nReportPacketLength);
-            
+
             if (rc > 0)
             {
                 break;
             }
-            
+
             i ++;
         }
         if (i == 5)
         {
             DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else
@@ -12029,7 +12029,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
         if (rc < 0)
         {
             DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
 #else
@@ -12037,15 +12037,15 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
     if (rc < 0)
     {
         DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-        goto TouchHandleEnd;		
+        goto TouchHandleEnd;
     }
-#endif //CONFIG_ENABLE_GESTURE_WAKEUP   
+#endif //CONFIG_ENABLE_GESTURE_WAKEUP
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM)
     rc = IicReadData(SLAVE_I2C_ID_DWI2C, &pPacket[0], nReportPacketLength);
     if (rc < 0)
     {
         DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-        goto TouchHandleEnd;		
+        goto TouchHandleEnd;
     }
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
     if (nReportPacketLength > 8)
@@ -12063,10 +12063,10 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
     if (rc < 0)
     {
         DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-        goto TouchHandleEnd;		
+        goto TouchHandleEnd;
     }
 #endif
-    
+
     if (0 == _DrvFwCtrlSelfParsePacket(pPacket, nReportPacketLength, &tInfo))
     {
         //report...
@@ -12080,17 +12080,17 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
                 input_report_key(g_InputDevice, nLastKeyCode, 0);
 
                 input_sync(g_InputDevice);
-                    
+
                 nLastKeyCode = 0; //clear key status..
             }
             else
             {
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL // TYPE B PROTOCOL
-                for (i = 0; i < MAX_TOUCH_NUM; i ++) 
+                for (i = 0; i < MAX_TOUCH_NUM; i ++)
                 {
                     DrvPlatformLyrFingerTouchReleased(0, 0, i);
                 }
-                
+
                 input_mt_sync_frame(g_InputDevice);
 #else // TYPE A PROTOCOL
                 DrvPlatformLyrFingerTouchReleased(0, 0, 0);
@@ -12107,19 +12107,19 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
 #if defined(CONFIG_TOUCH_DRIVER_RUN_ON_SPRD_PLATFORM) || defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM)
                 if (tInfo.nTouchKeyCode == 4) // TOUCH_KEY_HOME
                 {
-                    nTouchKeyCode = g_TpVirtualKey[1];           
+                    nTouchKeyCode = g_TpVirtualKey[1];
                 }
                 else if (tInfo.nTouchKeyCode == 1) // TOUCH_KEY_MENU
                 {
                     nTouchKeyCode = g_TpVirtualKey[0];
-                }           
+                }
                 else if (tInfo.nTouchKeyCode == 2) // TOUCH_KEY_BACK
                 {
                     nTouchKeyCode = g_TpVirtualKey[2];
-                }           
-                else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH 
-                {	
-                    nTouchKeyCode = g_TpVirtualKey[3];           
+                }
+                else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH
+                {
+                    nTouchKeyCode = g_TpVirtualKey[3];
                 }
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
 #ifdef CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
@@ -12127,37 +12127,37 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
                 {
                     if (tInfo.nTouchKeyCode == 4) // TOUCH_KEY_HOME
                     {
-                        nTouchKeyCode = tpd_dts_data.tpd_key_local[1];           
+                        nTouchKeyCode = tpd_dts_data.tpd_key_local[1];
                     }
                     else if (tInfo.nTouchKeyCode == 1) // TOUCH_KEY_MENU
                     {
                         nTouchKeyCode = tpd_dts_data.tpd_key_local[0];
-                    }           
+                    }
                     else if (tInfo.nTouchKeyCode == 2) // TOUCH_KEY_BACK
                     {
                         nTouchKeyCode = tpd_dts_data.tpd_key_local[2];
-                    }           
-                    else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH 
-                    {	
-                        nTouchKeyCode = tpd_dts_data.tpd_key_local[3];           
+                    }
+                    else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH
+                    {
+                        nTouchKeyCode = tpd_dts_data.tpd_key_local[3];
                     }
                 }
 #else
                 if (tInfo.nTouchKeyCode == 4) // TOUCH_KEY_HOME
                 {
-                    nTouchKeyCode = g_TpVirtualKey[1];           
+                    nTouchKeyCode = g_TpVirtualKey[1];
                 }
                 else if (tInfo.nTouchKeyCode == 1) // TOUCH_KEY_MENU
                 {
                     nTouchKeyCode = g_TpVirtualKey[0];
-                }           
+                }
                 else if (tInfo.nTouchKeyCode == 2) // TOUCH_KEY_BACK
                 {
                     nTouchKeyCode = g_TpVirtualKey[2];
-                }           
-                else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH 
-                {	
-                    nTouchKeyCode = g_TpVirtualKey[3];           
+                }
+                else if (tInfo.nTouchKeyCode == 8) // TOUCH_KEY_SEARCH
+                {
+                    nTouchKeyCode = g_TpVirtualKey[3];
                 }
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
 #endif
@@ -12166,7 +12166,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
                 {
                     DBG(&g_I2cClient->dev, "key touch pressed\n");
                     DBG(&g_I2cClient->dev, "nTouchKeyCode = %d, nLastKeyCode = %d\n", nTouchKeyCode, nLastKeyCode);
-                    
+
                     nLastKeyCode = nTouchKeyCode;
 
                     input_report_key(g_InputDevice, BTN_TOUCH, 1);
@@ -12174,7 +12174,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
 
                     input_sync(g_InputDevice);
 
-#ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL 
+#ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
                     _gPrevTouchStatus = 0;
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
                 }
@@ -12183,9 +12183,9 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
             else
             {
                 DBG(&g_I2cClient->dev, "tInfo->nFingerNum = %d...............\n", tInfo.nFingerNum);
-                
+
 #ifdef CONFIG_ENABLE_TYPE_B_PROTOCOL
-                for (i = 0; i < MAX_TOUCH_NUM; i ++) 
+                for (i = 0; i < MAX_TOUCH_NUM; i ++)
                 {
                     if (tInfo.nFingerNum != 0)
                     {
@@ -12199,10 +12199,10 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
                         }
                     }
                 }
-                
+
                 input_mt_sync_frame(g_InputDevice);
 #else // TYPE A PROTOCOL
-                for (i = 0; i < tInfo.nFingerNum; i ++) 
+                for (i = 0; i < tInfo.nFingerNum; i ++)
                 {
                     DrvPlatformLyrFingerTouchPressed(tInfo.tPoint[i].nX, tInfo.tPoint[i].nY, 0, 0);
                 }
@@ -12219,7 +12219,7 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
             {
                 g_ValidTouchCount = 0; // Reset count if overflow
                 DBG(&g_I2cClient->dev, "g_ValidTouchCount reset to 0\n");
-            } 	
+            }
 
             g_ValidTouchCount ++;
 
@@ -12228,8 +12228,8 @@ void _DrvFwCtrlSelfHandleFingerTouch(void) // for MSG21xxA/MSG22xx
 #endif //CONFIG_ENABLE_COUNT_REPORT_RATE
     }
 
-    TouchHandleEnd: 
-    	
+    TouchHandleEnd:
+
 //    DBG(&g_I2cClient->dev, "*** %s() *** mutex_unlock(&g_Mutex)\n", __func__);  // add for debug
     mutex_unlock(&g_Mutex);
 }
@@ -12246,30 +12246,30 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
     u16 nReportPacketLength = 0;
 
 //    DBG(&g_I2cClient->dev, "*** %s() ***\n", __func__);  // add for debug
-    
+
     if (_gIsDisableFinagerTouch == 1)
     {
         DBG(&g_I2cClient->dev, "Skip finger touch for handling get firmware info or change firmware mode\n");
         return;
     }
 
-    mutex_lock(&g_Mutex); 
+    mutex_lock(&g_Mutex);
 //    DBG(&g_I2cClient->dev, "*** %s() *** mutex_lock(&g_Mutex)\n", __func__);  // add for debug
 
     memset(&tInfo, 0x0, sizeof(MutualTouchInfo_t));
 
     if (IS_FIRMWARE_DATA_LOG_ENABLED)
-    {	
+    {
         if (g_FirmwareMode == FIRMWARE_MODE_DEMO_MODE)
         {
 #ifdef CONFIG_ENABLE_HOTKNOT    //demo mode
-            if (g_HotKnotState == HOTKNOT_TRANS_STATE)             
+            if (g_HotKnotState == HOTKNOT_TRANS_STATE)
             {
                 nReportPacketLength = DEMO_HOTKNOT_SEND_RET_LEN;
                 pPacket = g_DemoModeHotKnotSndRetPacket;
             }
             else
-#endif //CONFIG_ENABLE_HOTKNOT		
+#endif //CONFIG_ENABLE_HOTKNOT
             {
                 DBG(&g_I2cClient->dev, "FIRMWARE_MODE_DEMO_MODE\n");
 
@@ -12284,17 +12284,17 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
             if (g_MutualFirmwareInfo.nLogModePacketHeader != 0xA5 && g_MutualFirmwareInfo.nLogModePacketHeader != 0xAB && g_MutualFirmwareInfo.nLogModePacketHeader != 0xA7)
             {
                 DBG(&g_I2cClient->dev, "WRONG DEBUG MODE HEADER : 0x%x\n", g_MutualFirmwareInfo.nLogModePacketHeader);
-                goto TouchHandleEnd;		
+                goto TouchHandleEnd;
             }
-        
+
 #ifdef CONFIG_ENABLE_HOTKNOT    //debug mode
-            if (g_HotKnotState == HOTKNOT_TRANS_STATE)             
+            if (g_HotKnotState == HOTKNOT_TRANS_STATE)
             {
                 nReportPacketLength = DEBUG_HOTKNOT_SEND_RET_LEN;
-                pPacket = g_DebugModeHotKnotSndRetPacket;        
+                pPacket = g_DebugModeHotKnotSndRetPacket;
             }
             else
-#endif //CONFIG_ENABLE_HOTKNOT	            
+#endif //CONFIG_ENABLE_HOTKNOT
             {
                 nReportPacketLength = g_MutualFirmwareInfo.nLogModePacketLength;
                 pPacket = g_LogModePacket;
@@ -12303,19 +12303,19 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
         else
         {
             DBG(&g_I2cClient->dev, "WRONG FIRMWARE MODE : 0x%x\n", g_FirmwareMode);
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else
     {
 #ifdef CONFIG_ENABLE_HOTKNOT    //demo mode
-        if (g_HotKnotState == HOTKNOT_TRANS_STATE)			  
+        if (g_HotKnotState == HOTKNOT_TRANS_STATE)
         {
             nReportPacketLength = DEMO_HOTKNOT_SEND_RET_LEN;
             pPacket = g_DemoModeHotKnotSndRetPacket;
         }
         else
-#endif //CONFIG_ENABLE_HOTKNOT        
+#endif //CONFIG_ENABLE_HOTKNOT
         {
             DBG(&g_I2cClient->dev, "FIRMWARE_MODE_DEMO_MODE\n");
 
@@ -12331,7 +12331,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
     {
         DBG(&g_I2cClient->dev, "Set gesture debug mode packet length, g_ChipType=0x%x\n", g_ChipType);
 
-        if (g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX) 
+        if (g_ChipType == CHIP_TYPE_MSG26XXM || g_ChipType == CHIP_TYPE_MSG28XX)
         {
             nReportPacketLength = GESTURE_DEBUG_MODE_PACKET_LENGTH;
             pPacket = _gGestureWakeupPacket;
@@ -12339,7 +12339,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
         else
         {
             DBG(&g_I2cClient->dev, "This chip type does not support gesture debug mode.\n");
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else if (g_GestureWakeupFlag == 1)
@@ -12378,7 +12378,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
     if (g_GestureWakeupFlag == 1)
     {
         s32 rc;
-        
+
         while (i < 5)
         {
             mdelay(50);
@@ -12388,45 +12388,45 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
             {
                 break;
             }
-            
+
             i ++;
         }
         if (i == 5)
         {
             DBG(&g_I2cClient->dev, "I2C read packet data failed, rc = %d\n", rc);
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
     else
     {
         if (0 != _DrvFwCtrlReadFingerTouchData(&pPacket[0], nReportPacketLength))
         {
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
 #else
     if (0 != _DrvFwCtrlReadFingerTouchData(&pPacket[0], nReportPacketLength))
     {
-         goto TouchHandleEnd;		
+         goto TouchHandleEnd;
     }
-#endif //CONFIG_ENABLE_GESTURE_WAKEUP   
+#endif //CONFIG_ENABLE_GESTURE_WAKEUP
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_QCOM_PLATFORM)
     if (0 != _DrvFwCtrlReadFingerTouchData(&pPacket[0], nReportPacketLength))
     {
-        goto TouchHandleEnd;		
+        goto TouchHandleEnd;
     }
 #elif defined(CONFIG_TOUCH_DRIVER_RUN_ON_MTK_PLATFORM)
     {
         s32 nRetVal = 0;
-        
+
 #ifdef CONFIG_ENABLE_DMA_IIC
         DmaReset();
 #endif //CONFIG_ENABLE_DMA_IIC
-        
+
         nRetVal = _DrvFwCtrlReadFingerTouchData(&pPacket[0], nReportPacketLength);
         if (0 != nRetVal)
         {
-            goto TouchHandleEnd;		
+            goto TouchHandleEnd;
         }
     }
 #endif
@@ -12447,8 +12447,8 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
 #else
             DBG(&g_I2cClient->dev, "tInfo.nKeyCode=%x, nLastKeyCode=%x, g_TpVirtualKey[%d]=%d\n", tInfo.nKeyCode, nLastKeyCode, tInfo.nKeyCode, g_TpVirtualKey[tInfo.nKeyCode]);
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
-#endif   
-         
+#endif
+
             if (tInfo.nKeyCode < MAX_KEY_NUM)
             {
                 if (tInfo.nKeyCode != nLastKeyCode)
@@ -12467,7 +12467,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
 #else
                     input_report_key(g_InputDevice, g_TpVirtualKey[tInfo.nKeyCode], 1);
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
-#endif   
+#endif
                     input_sync(g_InputDevice);
 
                     nLastKeyCode = tInfo.nKeyCode;
@@ -12501,9 +12501,9 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
 #else
                 input_report_key(g_InputDevice, g_TpVirtualKey[nLastKeyCode], 0);
 #endif //CONFIG_PLATFORM_USE_ANDROID_SDK_6_UPWARD
-#endif   
+#endif
                 input_sync(g_InputDevice);
-                
+
                 nLastKeyCode = 0xFF;
             }
         }
@@ -12529,7 +12529,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
                 }
                 _gPreviousTouch[i] = _gCurrentTouch[i];
             }
-            
+
             input_mt_sync_frame(g_InputDevice);
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
 
@@ -12552,12 +12552,12 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
                     }
                     _gPreviousTouch[i] = _gCurrentTouch[i];
                 }
-                
+
                 input_mt_sync_frame(g_InputDevice);
 #else // TYPE A PROTOCOL
                 DrvPlatformLyrFingerTouchReleased(0, 0, 0);
 #endif //CONFIG_ENABLE_TYPE_B_PROTOCOL
-    
+
                 input_sync(g_InputDevice);
 
                 nLastCount = 0;
@@ -12571,7 +12571,7 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
             {
                 g_ValidTouchCount = 0; // Reset count if overflow
                 DBG(&g_I2cClient->dev, "g_ValidTouchCount reset to 0\n");
-            } 	
+            }
 
             g_ValidTouchCount ++;
 
@@ -12580,8 +12580,8 @@ void _DrvFwCtrlMutualHandleFingerTouch(void) // for MSG26xxM/MSG28xx
 #endif //CONFIG_ENABLE_COUNT_REPORT_RATE
     }
 
-    TouchHandleEnd: 
-    	
+    TouchHandleEnd:
+
 //    DBG(&g_I2cClient->dev, "*** %s() *** mutex_unlock(&g_Mutex)\n", __func__);  // add for debug
     mutex_unlock(&g_Mutex);
 }
