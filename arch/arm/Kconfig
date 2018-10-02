@@ -826,6 +826,12 @@ config ARCH_OMAP1
 
 endchoice
 
+config MSM89X7_BQ_U_2016
+	default n
+	bool "Bq U 2016 boards"
+	help
+	  Support for bq U 2016 boards.
+
 menu "Multiple platform selection"
 	depends on ARCH_MULTIPLATFORM
 
