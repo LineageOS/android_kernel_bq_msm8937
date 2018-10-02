@@ -535,7 +535,7 @@
 				};
 			};
 
-		fpc_reset_active: active {
+			fpc_reset_active: active {
 				mux {
 					pins = "gpio59";
 					function = "gpio";
