@@ -3378,6 +3378,15 @@ void WLANTL_ResetRxSSN(v_PVOID_t pvosGCtx, uint8_t ucSTAId);
 void WLANTL_SetDataPktFilter(v_PVOID_t pvosGCtx, uint8_t ucSTAId, bool flag);
 
 /**
+ * WLANTL_SetARPFWDatapath() - keep or remove FW in data path for ARP
+ * @pvosGCtx: global vos context
+ * @flag: value to keep or remove FW from data path
+ *
+ * Return: void
+ */
+void WLANTL_SetARPFWDatapath(void * pvosGCtx, bool flag);
+
+/**
  * WLANTL_SetKeySeqCounter() - set sequence key counter
  * @pvosGCtx: global vos context
  * @counter: key sequence counter

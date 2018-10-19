@@ -146,6 +146,8 @@ typedef enum {
 #endif
    NUD_DEBUG = 68,
    FATAL_EVENT_LOGGING = 69,
+   /*70 reserved for WIFI_DUAL_BAND_ENABLE */
+   PROBE_RSP_TEMPLATE_VER1 = 71,
    //MAX_FEATURE_SUPPORTED = 128
 } placeHolderInCapBitmap;
 
@@ -767,6 +769,12 @@ typedef struct sSirMbMsgP2p
 #define SIR_HAL_PER_ROAM_SCAN_TRIGGER_RSP  (SIR_HAL_ITC_MSG_TYPES_BEGIN + 289)
 #endif
 #define SIR_HAL_UPDATE_CFG_INT_PARAM       (SIR_HAL_ITC_MSG_TYPES_BEGIN + 290)
+/* ARP Debug stats */
+#define SIR_HAL_SET_ARP_STATS_REQ          (SIR_HAL_ITC_MSG_TYPES_BEGIN + 301)
+#define SIR_HAL_GET_ARP_STATS_REQ          (SIR_HAL_ITC_MSG_TYPES_BEGIN + 302)
+
+#define SIR_HAL_TRIGGER_ADD_BA_REQ         (SIR_HAL_ITC_MSG_TYPES_BEGIN + 303)
+#define SIR_HAL_GET_CON_STATUS             (SIR_HAL_ITC_MSG_TYPES_BEGIN + 304)
 #define SIR_HAL_MSG_TYPES_END              (SIR_HAL_MSG_TYPES_BEGIN + 0x1FF)
 
 // CFG message types
