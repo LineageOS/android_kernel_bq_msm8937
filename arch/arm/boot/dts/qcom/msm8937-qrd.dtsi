@@ -38,7 +38,6 @@
 
 &int_codec {
 	status = "okay";
-	qcom,model = "msm8952-sku1-snd-card";
 	qcom,msm-mbhc-hphl-swh = <1>;
 	qcom,msm-mbhc-gnd-swh = <1>;
 	qcom,msm-spk-ext-pa = <&tlmm 6 0>;
