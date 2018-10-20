@@ -49,6 +49,10 @@
 	qcom,hold-soc-while-full;
 };
 
+&int_codec {
+	qcom,model = "msm8952-sku1-snd-card";
+};
+
 &i2c_2 {
 	status = "disabled";
 	pericom-type-c@1d {
